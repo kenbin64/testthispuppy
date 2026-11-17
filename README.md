@@ -41,7 +41,12 @@ Internal mode, each macro repeated 50 times: **143 passed, 0 failed**, including
   PASS  cleanup  delete the throwaway database          0 ms  container stopped and removed
 ```
 
-Behind it are 54 unit, controller, regression and error-path tests. The error-path tests force every failure branch on purpose: a seed that cannot succeed, an unreachable database, a restore blocked partway through (it rolls back completely), an app that dies at start, and more.
+Behind it are 55 unit, controller, regression and error-path tests. The error-path tests force every failure branch on purpose: a seed that cannot succeed, an unreachable database, a restore blocked partway through (it rolls back completely), an app that dies at start, and more.
+
+## Watch it, or run the demo
+
+- **Watch a recorded real run, step by step:** [butterflyfx.us/work/testthispuppy-demo.html](https://butterflyfx.us/work/testthispuppy-demo.html)
+- **Run the demo yourself:** with Java 21, Maven, Docker and Chrome installed, run `demo.cmd` (Windows) or `./demo.sh` (Mac and Linux) from this folder. It checks what it needs, builds everything, runs every check on a throwaway database with Chrome visible so you can watch, and opens an HTML report at the end. Each browser step is also saved as a captioned frame in `puppy/demo-frames`.
 
 ## Quick start
 

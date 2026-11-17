@@ -19,15 +19,40 @@ public final class PuppyRun {
     private PuppyRun() {
     }
 
-    public static void main(String[] args) throws Exception {
+    /**
+     * Always ends the process: 0 when everything passed, 1 when a test failed, 2 when the run itself crashed.
+     * (Selenium and Testcontainers leave background threads running, so without an explicit exit a crash
+     * would leave the program hanging instead of reporting.)
+     */
+    public static void main(String[] args) {
+        int code;
+        try {
+            code = runFromSettings(args) ? 0 : 1;
+        } catch (Exception e) {
+            System.err.println("TestThisPuppy stopped with an error: " + e);
+            e.printStackTrace();
+            code = 2;
+        }
+        System.exit(code);
+    }
+
+    private static boolean runFromSettings(String[] args) throws Exception {
         Path configFile = Path.of(args.length > 0 ? args[0] : "puppy.properties");
         PuppyConfig config = PuppyConfig.load(configFile);
+        String frames = config.setting("demo.frames", "");
+        if (!frames.isBlank()) {
+            FrameRecorder.start(config.folder().resolve(frames), Long.parseLong(config.setting("demo.pauseMs", "0")));
+        }
         List<TestResult> results = new ArrayList<>(config.internal() ? runInternal(config) : runExternal(config));
+        FrameRecorder.finish();
         results.addAll(analyzeLogs(config, results));
         Reporter.print(results);
         Reporter.write(results, config.reportFile());
+        Path html = config.reportFile().resolveSibling(config.reportFile().getFileName().toString().replaceFirst("\\.json$", "") + ".html");
+        Reporter.writeHtml(results, html);
+        System.out.println("  HTML report written to " + html);
         System.out.println("  report written to " + config.reportFile());
-        System.exit(results.stream().allMatch(TestResult::passed) ? 0 : 1);
+        return results.stream().allMatch(TestResult::passed);
     }
 
     /** External mode: an existing database, approved by the guard, restored to its snapshot afterwards. */
@@ -189,7 +214,7 @@ public final class PuppyRun {
             MacroRunner runner = new MacroRunner(browser.driver(), dummy);
             for (Path macro : macros) {
                 for (int run = 1; run <= repeat; run++) {
-                    TestResult result = runner.run(macro, config.baseUrl(), Map.of());
+                    TestResult result = runner.run(macro, config.baseUrl(), Map.of(), run == 1 && FrameRecorder.on());
                     results.add(repeat == 1 ? result : new TestResult(result.kind(), result.name() + " #" + run,
                             result.passed(), result.detail(), result.millis()));
                 }

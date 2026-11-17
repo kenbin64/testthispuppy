@@ -37,7 +37,7 @@ Every run follows the same order, and the cleanup always runs, even when somethi
 | Restore | Deletes every row added since the snapshot (including rows the app created), sets back changed rows, puts back removed rows, and resets the sequences, in one transaction. |
 | Verify | Takes a second snapshot and confirms it matches the first exactly. |
 | Analyze | Reads the app's log for stack traces and errors, writes `puppy-analysis.md`, and optionally asks Claude to explain any failures. |
-| Report | Prints a table to the console and writes a JSON report. The process exits with 0 when everything passed, 1 otherwise. |
+| Report | Prints a table to the console and writes a JSON report and an HTML report. The process exits with 0 when everything passed, 1 when a test failed, and 2 if the run itself crashed. |
 
 ## 2. Installing
 
@@ -133,6 +133,8 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 
 | Setting | Meaning | Default |
 |---|---|---|
+| `demo.frames` | Folder to save a captioned screenshot of every browser step into (for demos) | none, meaning off |
+| `demo.pauseMs` | Pause after each saved frame, so a person watching can follow | `0` |
 | `report.file` | JSON report | `puppy-report.json` |
 | `log.file` | The app's log, for analysis (external mode) | none; internal mode uses `app-under-test.log` |
 | `ai.analysis` | `claude` to have Claude explain failures, `off` otherwise | `off` |
@@ -200,7 +202,7 @@ The console shows one line per step or test:
 
 The columns are the outcome, the kind of test (`network`, `setup`, `http`, `race`, `browser`, `wrong`, `injection`, `macro`, `cleanup`, `log`, `ai`), the test's name, how long it took, and what happened. The same results go into the JSON report, and the exit code is 0 only when everything passed, so a CI system can fail the build on any failure.
 
-Files a run can leave next to the settings file: the JSON report, `puppy-analysis.md`, `app-under-test.log` (internal mode), and a screenshot named after any macro that failed.
+Files a run can leave next to the settings file: the JSON report, the HTML report (same name, `.html`), `puppy-analysis.md`, `app-under-test.log` (internal mode), and a screenshot named after any macro that failed.
 
 ## 14. Running in CI
 

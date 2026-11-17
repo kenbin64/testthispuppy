@@ -46,6 +46,11 @@ public final class MacroRunner {
     }
 
     public TestResult run(Path macroFile, String baseUrl, Map<String, List<Map<String, Object>>> seeded) {
+        return run(macroFile, baseUrl, seeded, false);
+    }
+
+    /** As run, and with capture on, a demo frame is saved after every step. */
+    public TestResult run(Path macroFile, String baseUrl, Map<String, List<Map<String, Object>>> seeded, boolean capture) {
         long start = System.currentTimeMillis();
         String name = macroFile.getFileName().toString().replaceFirst("\\.txt$", "");
         TestResult result;
@@ -60,6 +65,9 @@ public final class MacroRunner {
                 String value = fill(row.getOrDefault("value", ""), seeded);
                 step = action + (target.isEmpty() ? "" : " " + target) + (value.isEmpty() ? "" : " \"" + value + "\"");
                 perform(action, target, value, baseUrl);
+                if (capture) {
+                    FrameRecorder.capture(driver, "Workflow " + name + ", step " + number + ": " + step);
+                }
             }
             result = new TestResult("macro", name, true, steps.size() + " steps passed", System.currentTimeMillis() - start);
         } catch (Exception e) {

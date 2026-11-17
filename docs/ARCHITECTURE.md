@@ -56,6 +56,7 @@ If any step fails, the whole restore rolls back, so the database is never left h
 | Suite | What it proves |
 |---|---|
 | `DummyValuesTest`, `HttpTesterTest`, `PageScannerTest` | The three drill pieces (graders) |
+| `ReporterTest` | The HTML report survives characters that break formatting or HTML |
 | `PlumbingTest` | Grid files, table order, placeholders, filler words and the guard |
 | `FailurePathsTest` | Every error path fails safely: seeding failures, an unreachable database, a refused injection run, a restore that cannot finish (it rolls back completely), a table without a key, an app that dies at start, a page without a submit button, a missing test file |
 | `LogAnalyzerTest` | Root causes, grouping, error lines, redaction, and that the AI prompt carries no secrets |

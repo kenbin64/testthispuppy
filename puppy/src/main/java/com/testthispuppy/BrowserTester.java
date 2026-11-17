@@ -43,11 +43,14 @@ public class BrowserTester implements AutoCloseable {
         TestResult result;
         try {
             driver.get(baseUrl + test.path());
+            FrameRecorder.capture(driver, "Happy path: open " + test.path() + " and scan it for fields");
             List<FormField> fields = scanner.scan(driver);
             for (FormField field : fields) {
                 fillGood(field);
+                FrameRecorder.capture(driver, "Happy path: fill " + field.name() + " (" + field.type() + ") with a dummy value");
             }
             String page = submit(test.expectedText());
+            FrameRecorder.capture(driver, "Happy path: submit, and the page says \"" + firstLine(page) + "\"");
             boolean passed = page.contains(test.expectedText());
             String detail = "filled " + fields.size() + " fields; " + (passed ? "page said \"" + firstLine(page) + "\""
                     : "page did not contain \"" + test.expectedText() + "\": " + firstLine(page));
@@ -84,6 +87,8 @@ public class BrowserTester implements AutoCloseable {
             TestResult result;
             try {
                 Submission submission = submitWith(test, baseUrl, target.name(), wrong.get());
+                FrameRecorder.capture(driver, "Wrong input, browser checks off: " + WrongValues.describe(target, wrong.get())
+                        + (submission.saved() ? ", and the app SAVED it" : ", and the server refused it"));
                 boolean saved = submission.saved();
                 String detail = saved ? "the app SAVED the wrong value"
                         : submission.crashed() ? "the app CRASHED (server error) instead of refusing cleanly"

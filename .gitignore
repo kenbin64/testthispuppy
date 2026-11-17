@@ -7,3 +7,6 @@ puppy/puppy-report-internal.json
 puppy/app-under-test.log
 puppy/puppy-analysis.md
 puppy/macros/*.png
+puppy/puppy-report-demo.json
+puppy/puppy-report*.html
+puppy/demo-frames/
