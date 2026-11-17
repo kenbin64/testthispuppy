@@ -1,0 +1,5 @@
+target/
+*.log
+puppy/puppy-report.json
+.idea/
+.vscode/

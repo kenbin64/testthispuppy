@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>New order</title></head>
+<body>
+<h1>New order</h1>
+<form method="post" action="/orders">
+  <label>Customer
+    <select name="customerId" required>
+      <option value="">Choose a customer</option>
+      <option th:each="c : ${customers}" th:value="${c.id}" th:text="${c.name}"></option>
+    </select>
+  </label><br>
+  <label>Product <input type="text" name="product" required></label><br>
+  <label>Quantity <input type="number" name="quantity" min="1" required></label><br>
+  <label>Order date <input type="date" name="orderDate" required></label><br>
+  <button type="submit">Save order</button>
+</form>
+</body>
+</html>

@@ -1,0 +1,12 @@
+# The real database both the demo app and the tester use.
+# Start it:  docker compose up -d      Stop it:  docker compose down
+services:
+  postgres:
+    image: postgres:16
+    container_name: testthispuppy-postgres
+    environment:
+      POSTGRES_DB: puppy_demo
+      POSTGRES_USER: puppy
+      POSTGRES_PASSWORD: puppy
+    ports:
+      - "5433:5432"

@@ -1,0 +1,8 @@
+# HTTP tests: one row per test. {table.column} is filled from the first row seeded into that table.
+name                          | method | path                          | body                                                   | expectedStatus | expectedText
+list customers                | GET    | /api/customers                |                                                        | 200            | {customer.email}
+read a seeded customer        | GET    | /api/customers/{customer.id}  |                                                        | 200            | {customer.name}
+a missing customer is 404     | GET    | /api/customers/999999999      |                                                        | 404            |
+create a customer             | POST   | /api/customers                | {"name": "Posted Puppy", "email": "posted@example.test"} | 201            | Posted Puppy
+reject a customer with no email | POST | /api/customers                | {"name": "No Email"}                                   | 400            |
+list orders                   | GET    | /api/orders                   |                                                        | 200            | {purchase_order.product}

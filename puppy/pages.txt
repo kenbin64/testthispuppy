@@ -1,0 +1,4 @@
+# Browser tests: one row per page. The page is scanned, every field filled with dummy values, and submitted.
+name                    | path            | expectedText
+fill the customer form  | /customers/new  | Saved customer
+fill the order form     | /orders/new     | Saved order
