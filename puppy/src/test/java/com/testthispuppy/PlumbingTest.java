@@ -32,6 +32,13 @@ class PlumbingTest {
     }
 
     @Test
+    void fillerWordsComeFromTheCsvAndWrapAround() {
+        assertEquals("lorem", FillerWords.word(0), "the first word in filler-words.csv");
+        assertEquals("Lorem", FillerWords.capitalized(0));
+        assertEquals(FillerWords.word(0), FillerWords.word(FillerWords.count()), "positions wrap round the list");
+    }
+
+    @Test
     void parentsComeBeforeChildren() {
         TableInfo child = new TableInfo("purchase_order", List.of(), List.of("id"), List.of(new ForeignKey("customer_id", "customer", "id")));
         TableInfo parent = new TableInfo("customer", List.of(), List.of("id"), List.of());
@@ -64,6 +71,7 @@ class PlumbingTest {
     }
 
     private static PuppyConfig config(String url, List<String> allowed) {
-        return new PuppyConfig(url, "u", "p", allowed, "http://localhost", 1, Path.of("h"), Path.of("p"), true, Path.of("r"));
+        return new PuppyConfig("external", url, "u", "p", allowed, null, List.of(), "http://localhost", 1,
+                Path.of("h"), Path.of("p"), true, Path.of("r"), Path.of("."), List.of("happy"), new java.util.Properties());
     }
 }

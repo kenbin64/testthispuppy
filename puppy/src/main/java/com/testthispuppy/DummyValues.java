@@ -41,20 +41,21 @@ public class DummyValues {
         return value;
     }
 
+    // Text built from the Latin filler words in filler-words.csv. The counter keeps every value different.
     private String textFor(String name) {
         int n = counter.incrementAndGet();
         String lower = name.toLowerCase();
         String text;
         if (lower.contains("email")) {
-            text = "puppy" + n + "@example.test";
+            text = FillerWords.word(n) + "." + FillerWords.word(n + 1) + n + "@example.test";
         } else if (lower.contains("phone")) {
             text = String.format("801-555-%04d", n % 10000);
         } else if (lower.contains("name")) {
-            text = "Puppy Tester " + n;
+            text = FillerWords.capitalized(n) + " " + FillerWords.capitalized(n + 7) + " " + n;
         } else if (lower.contains("status")) {
             text = "NEW";
         } else {
-            text = "puppy-" + name + "-" + n;
+            text = FillerWords.capitalized(n) + " " + FillerWords.word(n + 3) + " " + FillerWords.word(n + 5) + " " + n;
         }
         return text;
     }

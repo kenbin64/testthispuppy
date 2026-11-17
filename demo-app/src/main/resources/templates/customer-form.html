@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head><meta charset="UTF-8"><title>New customer</title></head>
 <body>
 <h1>New customer</h1>
+<p id="error" th:if="${error}" th:text="${error}" style="color:#b00020"></p>
 <form method="post" action="/customers">
   <label>Name <input type="text" name="name" required></label><br>
   <label>Email <input type="email" name="email" required></label><br>

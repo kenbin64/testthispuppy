@@ -1,0 +1,17 @@
+# A workflow: create a customer, then place an order for that same customer.
+# {dummy:...} makes fresh Latin data on every run, so this can repeat as many times as macro.repeat says.
+action      | target          | value
+open        | /customers/new  |
+type        | name=name       | {dummy:name}
+type        | name=email      | {dummy:email}
+type        | name=phone      | {dummy:phone}
+submit      |                 |
+expect-text |                 | Saved customer
+remember    | id=result       | savedCustomer
+open        | /orders/new     |
+select      | name=customerId | last
+type        | name=product    | {dummy:text}
+type        | name=quantity   | {dummy:number}
+type        | name=orderDate  | {dummy:date}
+submit      |                 |
+expect-text |                 | Saved order

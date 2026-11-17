@@ -3,6 +3,7 @@
 <head><meta charset="UTF-8"><title>New order</title></head>
 <body>
 <h1>New order</h1>
+<p id="error" th:if="${error}" th:text="${error}" style="color:#b00020"></p>
 <form method="post" action="/orders">
   <label>Customer
     <select name="customerId" required>

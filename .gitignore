@@ -3,3 +3,7 @@ target/
 puppy/puppy-report.json
 .idea/
 .vscode/
+puppy/puppy-report-internal.json
+puppy/app-under-test.log
+puppy/puppy-analysis.md
+puppy/macros/*.png

@@ -1,0 +1,9 @@
+# A negative workflow: the server must refuse an invalid email even when the browser's own check is switched off.
+action         | target              | value
+open           | /customers/new      |
+type           | name=name           | {dummy:name}
+type           | name=email          | not-an-email
+no-validate    |                     |
+click          | text=Save customer  |
+expect-text    |                     | Email must be a valid email address
+expect-no-text |                     | Saved customer
