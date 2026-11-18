@@ -37,7 +37,9 @@ public class PageController {
         if (name.isBlank()) {
             problems.add("Name is required.");
         }
-        if (!email.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
+        // Checked after trimming, like the name: a pasted address often carries a space at either end.
+        // (A stricter test, written after mutation testing, found the untrimmed check refused those.)
+        if (!email.trim().matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
             problems.add("Email must be a valid email address.");
         }
         String view;

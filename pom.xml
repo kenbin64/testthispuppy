@@ -19,4 +19,28 @@
     <maven.compiler.release>21</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+
+  <!-- Mutation testing: tests the TESTS. PIT plants small bugs in the code (flips a comparison, drops a call,
+       changes a return value) and reruns the tests; a planted bug the tests do not catch is a gap in the tests.
+       TestThisPuppy runs it for you (mutation.* settings), or by hand:
+         mvn -pl puppy test-compile org.pitest:pitest-maven:mutationCoverage -DexcludedTestClasses=com.testthispuppy.FailurePathsTest
+       The report lands in <module>/target/pit-reports/. Settings come from the command line, so none are fixed here. -->
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.pitest</groupId>
+          <artifactId>pitest-maven</artifactId>
+          <version>1.30.1</version>
+          <dependencies>
+            <dependency>
+              <groupId>org.pitest</groupId>
+              <artifactId>pitest-junit5-plugin</artifactId>
+              <version>1.2.3</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>

@@ -45,6 +45,7 @@ public final class PuppyRun {
         }
         List<TestResult> results = new ArrayList<>(config.internal() ? runInternal(config) : runExternal(config));
         FrameRecorder.finish();
+        results.addAll(MutationCheck.run(config));          // test the tests (off unless mutation.project is set)
         results.addAll(analyzeLogs(config, results));
         Reporter.print(results);
         Reporter.write(results, config.reportFile());

@@ -1,5 +1,6 @@
 package com.testthispuppy.demo;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -10,7 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
+import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -42,9 +45,15 @@ class PageControllerTest {
         Customer saved = new Customer();
         ReflectionTestUtils.setField(saved, "id", 12L);
         when(customers.save(any())).thenReturn(saved);
-        mvc.perform(post("/customers").param("name", "Lorem Ipsum").param("email", "lorem@example.test"))
+        mvc.perform(post("/customers").param("name", "  Lorem Ipsum ").param("email", " lorem@example.test ").param("phone", "801-555-0001"))
                 .andExpect(status().isOk()).andExpect(view().name("saved"))
                 .andExpect(model().attribute("message", "Saved customer 12"));
+        // What was saved, not only that something was: mutation testing showed every field could be dropped unnoticed.
+        ArgumentCaptor<Customer> sent = ArgumentCaptor.forClass(Customer.class);
+        verify(customers).save(sent.capture());
+        assertEquals("Lorem Ipsum", sent.getValue().getName(), "the name is saved, trimmed");
+        assertEquals("lorem@example.test", sent.getValue().getEmail(), "the email is saved, trimmed");
+        assertEquals("801-555-0001", sent.getValue().getPhone(), "the phone is saved");
     }
 
     @Test
@@ -94,8 +103,24 @@ class PageControllerTest {
         ReflectionTestUtils.setField(saved, "id", 5L);
         when(customers.existsById(1L)).thenReturn(true);
         when(orders.save(any())).thenReturn(saved);
-        mvc.perform(post("/orders").param("customerId", "1").param("product", "Dolor")
+        mvc.perform(post("/orders").param("customerId", "1").param("product", " Dolor ")
                         .param("quantity", "2").param("orderDate", "2026-11-16"))
                 .andExpect(status().isOk()).andExpect(model().attribute("message", "Saved order 5"));
+        ArgumentCaptor<PurchaseOrder> sent = ArgumentCaptor.forClass(PurchaseOrder.class);
+        verify(orders).save(sent.capture());
+        assertEquals(1L, sent.getValue().getCustomerId(), "the order belongs to the chosen customer");
+        assertEquals("Dolor", sent.getValue().getProduct(), "the product is saved, trimmed");
+        assertEquals(2, sent.getValue().getQuantity(), "the quantity is saved");
+        assertEquals(LocalDate.of(2026, 11, 16), sent.getValue().getOrderDate(), "the order date is saved");
+    }
+
+    @Test
+    void theSmallestQuantityOneIsAccepted() throws Exception {
+        // The edge of the rule "at least 1": mutation testing showed the check could slip to "more than 1" unnoticed.
+        when(customers.existsById(1L)).thenReturn(true);
+        when(orders.save(any())).thenAnswer(call -> call.getArgument(0));
+        mvc.perform(post("/orders").param("customerId", "1").param("product", "Dolor")
+                        .param("quantity", "1").param("orderDate", "2026-11-16"))
+                .andExpect(status().isOk()).andExpect(view().name("saved"));
     }
 }

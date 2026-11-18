@@ -36,6 +36,7 @@ Every run follows the same order, and the cleanup always runs, even when somethi
 | Macros | Runs every workflow in the `macros` folder, as many times as `macro.repeat` says. |
 | Restore | Deletes every row added since the snapshot (including rows the app created), sets back changed rows, puts back removed rows, and resets the sequences, in one transaction. |
 | Verify | Takes a second snapshot and confirms it matches the first exactly. |
+| Test the tests | Optional (`mutation.project`). Plants small bugs in the app's code one at a time (a flipped comparison, a dropped call, a changed return value), reruns the app's own tests, and scores how many they catch. Each bug they miss is listed with its file and line. Full output in `mutation.log`. |
 | Analyze | Reads the app's log for stack traces and errors, writes `puppy-analysis.md`, and optionally asks Claude to explain any failures. |
 | Report | Prints a table to the console and writes a JSON report and an HTML report. The process exits with 0 when everything passed, 1 when a test failed, and 2 if the run itself crashed. |
 
@@ -128,6 +129,18 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 | `race.body` | Request body; `{n}` becomes each request's number, so unique values stay unique | none |
 | `race.table` | Table that should grow by exactly the number of requests | none |
 | `race.requests` | How many requests are released at once | `20` |
+
+### Test the tests (mutation testing)
+
+Line coverage says a line ran; this says whether the tests would notice it being wrong. On the demo app, the tests ran 99% of the lines but caught only 31 of 41 planted bugs, until the tests were fixed. The project needs the `pitest-maven` plugin and `pitest-junit5-plugin` in its `pom.xml` once (copy the block from `demo-app/pom.xml`).
+
+| Setting | Meaning | Default |
+|---|---|---|
+| `mutation.project` | Folder of the Maven project whose tests are checked | none, meaning off |
+| `mutation.target` | Which classes get bugs planted, for example `com.example.*` | the project's own package |
+| `mutation.level` | `quick`, `standard` or `thorough`: how many kinds of bug to plant. More kinds find more gaps and take longer. | `standard` |
+| `mutation.minScore` | The % of planted bugs the tests must catch. At or above it the check passes and missed bugs are listed to look at; below it they are failures. | `80` |
+| `mutation.excludeTests` | Tests to leave out, comma separated, for example slow ones that start a database | none |
 
 ### Output and analysis
 
