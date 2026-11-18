@@ -21,7 +21,8 @@ public final class GridFile {
     }
 
     public static List<Map<String, String>> read(Path file) throws IOException {
-        List<String> lines = Files.readAllLines(file).stream()
+        // Many Windows editors save a byte-order mark at the start of the file; it is not part of the text.
+        List<String> lines = Files.readAllLines(file).stream().map(line -> line.replace("﻿", ""))
                 .filter(line -> !line.isBlank() && !line.trim().startsWith("#")).toList();
         List<Map<String, String>> rows = new ArrayList<>();
         if (!lines.isEmpty()) {

@@ -138,11 +138,26 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 | Setting | Meaning | Default |
 |---|---|---|
 | `code.source` | A folder, or a Git URL (copied to a temporary folder, read, then deleted) | none, meaning off |
-| `code.checks` | Which groups: any of `structure`, `bugs`, `practices`, `security`, `style`. Syntax is always checked. | `structure,bugs,practices,security` |
+| `code.language` | `auto`, `java` or `javascript`. `auto` picks whichever has more source files. | `auto` |
+| `code.checks` | Which groups: any of `structure`, `bugs`, `practices`, `security`, `style`, `libraries`. Syntax is always checked. | `structure,bugs,practices,security,libraries` |
+| `code.engines` | Java: `pmd` and `spotbugs` (SpotBugs builds the project, so it only runs on a local Maven project, never on code from a URL). JavaScript: `eslint` (installed once, pinned, into `~/.testthispuppy`; needs Node.js). | Java `pmd,spotbugs`; JavaScript `eslint` |
+| `code.globals` | JavaScript names that come from outside the project, such as a library loaded from a CDN (`THREE`). Names declared at the top of the project's own browser scripts are found automatically. | none |
 | `code.level` | `quick`, `standard` or `thorough`: only the most serious issues, more, or everything | `standard` |
 | `code.failOn` | `high`, `medium`, `any` or `never`: which issues fail the run. Everything found is in the fix list either way. | `high` |
-| `code.skip` | Folders to leave out, comma separated, relative to the source, for example `src/test` | none |
+| `code.skip` | Folders to leave out, comma separated, relative to the source, for example `src/test`. Dependencies, build output and minified files are always left out. | none |
 | `code.ignoreRules` | Rules that do not apply to this project, by name, for example `SystemPrintln` for a command-line tool | none |
+
+The `libraries` group runs OSV-Scanner (Google's open-source scanner, pinned version, in Docker) over the project's dependency files (`pom.xml`, `package-lock.json` and others) and lists each library with known vulnerabilities, rated by its most severe one.
+
+### Running-app exposure checks
+
+| Setting | Meaning | Default |
+|---|---|---|
+| `errors.check` | `on` causes a few errors on purpose (a missing page, a quote on the injection read path) and fails if an error page shows a stack trace | `on` |
+| `errors.paths` | More paths to try, comma separated | none |
+| `xss.paths` | Paths to test for reflected cross-site scripting, each ending where the value goes, for example `/search?q=`. A harmless marked piece of HTML is sent; the check fails if it comes back unescaped. | none, meaning off |
+
+HTTP tests can use `{table.column#2}` for the second seeded row (and so on), so a spec can say "editing the first row leaves the second unchanged". Values filled into a request path are URL-encoded.
 
 The fix list is a starting point for judgement, not a verdict. Some rules are right in general and wrong for a given project (a database entity class is meant to be a plain data holder); leave those with a comment, or ignore the rule in the settings.
 

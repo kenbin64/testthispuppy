@@ -116,6 +116,8 @@ public final class PuppyRun {
             try {
                 Map<String, List<Map<String, Object>>> seeded = seed(connection, tables, config, dummy, results);
                 testHttp(config, seeded, results);
+                results.addAll(ErrorPageCheck.check(config));   // do error pages expose stack traces?
+                results.addAll(XssCheck.check(config));         // reflected cross-site scripting (xss.paths)
                 testRace(config, connection, results);
                 testBrowser(config, dummy, results, connection, tables);
             } catch (Exception e) {

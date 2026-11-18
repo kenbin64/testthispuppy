@@ -36,7 +36,7 @@ class CodeCheckTest {
     void findsSyntaxErrorsAndIssuesInTheirGroups(@TempDir Path root) throws Exception {
         write(root, "src/main/java/sample/Swallows.java", SWALLOWS);
         write(root, "src/main/java/sample/Broken.java", "package sample; public class Broken { void x( { }");
-        List<CodeCheck.Issue> issues = CodeCheck.analyze(root, List.of("bugs"), 5, List.of());
+        List<CodeCheck.Issue> issues = CodeCheck.analyze(root, "java", List.of("bugs"), 5, List.of());
         assertTrue(issues.stream().anyMatch(i -> i.group().equals("syntax") && i.path().endsWith("Broken.java")),
                 "a file that is not valid Java is reported as a syntax issue");
         assertTrue(issues.stream().anyMatch(i -> i.group().equals("bugs") && i.rule().equals("EmptyCatchBlock") && i.line() == 6),
@@ -48,8 +48,8 @@ class CodeCheckTest {
     void skippedFoldersAreLeftOut(@TempDir Path root) throws Exception {
         write(root, "src/main/java/sample/Swallows.java", SWALLOWS);
         write(root, "src/test/java/sample/Swallows.java", SWALLOWS);
-        List<CodeCheck.Issue> all = CodeCheck.analyze(root, List.of("bugs"), 5, List.of());
-        List<CodeCheck.Issue> skipped = CodeCheck.analyze(root, List.of("bugs"), 5, List.of("src/test"));
+        List<CodeCheck.Issue> all = CodeCheck.analyze(root, "java", List.of("bugs"), 5, List.of());
+        List<CodeCheck.Issue> skipped = CodeCheck.analyze(root, "java", List.of("bugs"), 5, List.of("src/test"));
         assertTrue(all.stream().anyMatch(i -> i.path().startsWith("src/test/")));
         assertTrue(skipped.stream().noneMatch(i -> i.path().startsWith("src/test/")));
         assertFalse(skipped.isEmpty(), "the main code is still checked");
@@ -75,6 +75,78 @@ class CodeCheckTest {
         assertTrue(md.contains("## src/A.java"));
         assertTrue(md.contains("**line 6**, medium, bugs: EmptyCatchBlock. Avoid empty catch blocks"));
         assertTrue(md.contains("Why: Swallowing errors hides failures."));
+    }
+
+    @Test
+    void checksJavaScriptAndLeavesDependenciesAndMinifiedFilesAlone(@TempDir Path root) throws Exception {
+        // == 1 (EqualComparison), an if without braces (IfStmtsMustUseBraces), and a variable never declared (GlobalVariable).
+        write(root, "src/game.js", "function move(a) {\n  if (a == 1) score = 2;\n  return a + 1;\n}\n");
+        write(root, "src/also.js", "var x = 1;\n");
+        write(root, "node_modules/lib/index.js", "eval('1');\n");
+        write(root, "src/lib.min.js", "eval('1');\n");
+        assertEquals("javascript", CodeCheck.detectLanguage(root, List.of()));
+        List<Path> files = CodeCheck.sourceFiles(root, "javascript", List.of());
+        assertEquals(2, files.size(), "only src/game.js and src/also.js: not node_modules, not .min.js");
+        List<CodeCheck.Issue> issues = CodeCheck.analyze(root, "javascript", List.of("bugs", "practices", "style"), 5, List.of());
+        assertTrue(issues.stream().noneMatch(i -> i.group().equals("syntax")), "valid JavaScript parses");
+        assertTrue(issues.stream().anyMatch(i -> i.path().equals("src/game.js") && i.rule().equals("EqualComparison") && i.line() == 2),
+                "the loose comparison is found in the JavaScript: " + issues);
+    }
+
+    @Test
+    void readsVulnerableLibrariesFromOsvScanner() throws Exception {
+        String json = """
+                {"results": [{"source": {"path": "/src/pom.xml"}, "packages": [
+                  {"package": {"name": "org.apache.commons:commons-text", "version": "1.9"},
+                   "vulnerabilities": [{"id": "GHSA-599f-7c49-w659", "aliases": ["CVE-2022-42889"]}],
+                   "groups": [{"max_severity": "9.8"}]}]}]}
+                """;
+        List<CodeCheck.Issue> issues = LibraryCheck.read(json);
+        assertEquals(1, issues.size());
+        assertEquals("pom.xml", issues.get(0).path());
+        assertEquals(1, issues.get(0).priority(), "a 9.8 score is high");
+        assertTrue(issues.get(0).message().contains("commons-text 1.9") && issues.get(0).message().contains("CVE-2022-42889"));
+        assertTrue(LibraryCheck.read("").isEmpty());
+    }
+
+    @Test
+    void readsSpotBugsAndPlacesEachBugInItsFile(@TempDir Path root) throws Exception {
+        write(root, "src/main/java/sample/Swallows.java", SWALLOWS);
+        String xml = "<BugCollection><BugInstance type='RV_ABSOLUTE_VALUE_OF_HASHCODE' category='CORRECTNESS' rank='9'>"
+                + "<ShortMessage>Bad attempt to compute absolute value of signed 32-bit hashcode</ShortMessage><LongMessage>Bad abs</LongMessage>"
+                + "<SourceLine sourcepath='sample/Swallows.java' start='5' end='5'/></BugInstance></BugCollection>";
+        List<CodeCheck.Issue> issues = SpotBugsEngine.read(xml, root);
+        assertEquals("src/main/java/sample/Swallows.java", issues.get(0).path());
+        assertEquals("bugs", issues.get(0).group());
+        assertEquals(2, issues.get(0).priority(), "rank 9 is medium-high");
+        assertEquals(5, issues.get(0).line());
+    }
+
+    @Test
+    void readsEslintAndTellsSyntaxErrorsFromRuleFindings(@TempDir Path root) throws Exception {
+        String a = root.resolve("src/a.js").toString().replace("\\", "\\\\");
+        String json = "[{\"filePath\": \"" + a + "\", \"messages\": ["
+                + "{\"ruleId\": \"no-undef\", \"severity\": 2, \"message\": \"'y' is not defined.\", \"line\": 2},"
+                + "{\"ruleId\": \"no-unused-vars\", \"severity\": 2, \"message\": \"'u' is assigned a value but never used.\", \"line\": 3},"
+                + "{\"ruleId\": null, \"fatal\": true, \"severity\": 2, \"message\": \"Parsing error: Unexpected token }\", \"line\": 9}]}]";
+        List<CodeCheck.Issue> issues = EslintEngine.read(json, root);
+        assertEquals("src/a.js", issues.get(0).path());
+        assertEquals("bugs", issues.get(0).group(), "an undefined name is a likely bug");
+        assertEquals("practices", issues.get(1).group());
+        assertEquals("syntax", issues.get(2).group(), "a parse failure is a syntax error");
+        assertTrue(EslintEngine.config(List.of("tests/"), java.util.Set.of(), List.of()).contains("\"tests/**\""), "skipped folders are passed to ESLint");
+    }
+
+    @Test
+    void browserScriptsShareTheirTopLevelNames() {
+        String script = "const ROOM_WIDTH = 10;\nfunction buildBoard() {\n  const inner = 1;\n}\nclass Peg {}\nwindow.FastTrackCore = {};\nif (window.x == 1) {}\n";
+        assertEquals(java.util.Set.of("ROOM_WIDTH", "buildBoard", "Peg", "FastTrackCore"), EslintEngine.topLevelNames(script),
+                "top-level declarations and window assignments, not indented locals or comparisons");
+        String config = EslintEngine.config(List.of(), java.util.Set.of("THREE", "ROOM_WIDTH"), List.of("src/app.js"));
+        assertTrue(config.contains("\"THREE\": \"writable\"") && config.contains("\"ROOM_WIDTH\": \"writable\""));
+        assertTrue(config.contains("files: [\"src/app.js\"], languageOptions: { sourceType: \"module\" }"), "module files are checked as modules");
+        assertTrue(EslintEngine.MODULE.matcher("import x from './x.js';").find());
+        assertFalse(EslintEngine.MODULE.matcher("// import nothing\nconst a = 1;").find());
     }
 
     @Test

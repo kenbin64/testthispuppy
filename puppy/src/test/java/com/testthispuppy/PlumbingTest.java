@@ -32,6 +32,15 @@ class PlumbingTest {
     }
 
     @Test
+    void gridFileIgnoresAByteOrderMark() throws IOException {
+        Path file = Files.createTempFile("grid-bom", ".txt");
+        Files.writeString(file, "﻿# saved by a Windows editor\nname | status\none  | 200\n");
+        List<Map<String, String>> rows = GridFile.read(file);
+        assertEquals(1, rows.size(), "the comment line is still a comment");
+        assertEquals("one", rows.get(0).get("name"));
+    }
+
+    @Test
     void fillerWordsComeFromTheCsvAndWrapAround() {
         assertEquals("lorem", FillerWords.word(0), "the first word in filler-words.csv");
         assertEquals("Lorem", FillerWords.capitalized(0));
@@ -58,6 +67,18 @@ class PlumbingTest {
         Map<String, List<Map<String, Object>>> seeded = Map.of("customer", List.of(Map.of("id", 42L, "name", "Rex")));
         assertEquals("/api/customers/42", Placeholders.fill("/api/customers/{customer.id}", seeded));
         assertEquals("hi Rex, {dog.id}", Placeholders.fill("hi {customer.name}, {dog.id}", seeded));
+    }
+
+    @Test
+    void placeholdersReachLaterRowsAndEncodeInsideAnAddress() {
+        Map<String, List<Map<String, Object>>> seeded = Map.of("customer",
+                List.of(Map.of("id", 1L, "name", "Lorem Ipsum"), Map.of("id", 2L, "name", "Dolor & Sit")));
+        assertEquals("Dolor & Sit", Placeholders.fill("{customer.name#2}", seeded), "#2 is the second seeded row");
+        assertEquals("{customer.name#3}", Placeholders.fill("{customer.name#3}", seeded), "a row that was not seeded is left alone");
+        HttpCase filled = Placeholders.fill(new HttpCase("t", "GET", "/search?name={customer.name}", "{customer.name}", 200, "{customer.name#2}"), seeded);
+        assertEquals("/search?name=Lorem%20Ipsum", filled.path(), "a space in an address is encoded");
+        assertEquals("Lorem Ipsum", filled.body(), "the body is not encoded");
+        assertEquals("Dolor & Sit", filled.expectedText(), "expected text is not encoded");
     }
 
     @Test
