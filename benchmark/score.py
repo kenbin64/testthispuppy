@@ -88,6 +88,9 @@ def read_puppy(run):
         m = re.match(r"- \*\*line (\d+)\*\*, (.*)", line)
         if m and current:
             out.append(finding("TestThisPuppy", m.group(2), current, int(m.group(1))))
+        whole = re.match(r"- \*\*whole file\*\*, (.*)", line)
+        if whole and current:      # a library finding: about the dependency file, not a line in it
+            out.append(finding("TestThisPuppy", f"{current} {whole.group(1)}"))
     return out
 
 
@@ -145,6 +148,8 @@ def read_osv():
 TOOLS = {
     "TestThisPuppy (automatic)": lambda: read_puppy("automatic"),
     "TestThisPuppy (with spec)": lambda: read_puppy("spec"),
+    "TestThisPuppy v2 (automatic)": lambda: read_puppy("automatic-v2"),
+    "TestThisPuppy v2 (with spec)": lambda: read_puppy("spec-v2"),
     "SonarQube (default profile)": lambda: read_sonar("default"),
     "SonarQube (comprehensive profile)": lambda: read_sonar("comprehensive"),
     "SpotBugs + FindSecBugs": read_spotbugs,

@@ -48,9 +48,22 @@ Bug zoo: a small Spring Boot shop with 21 defects planted on purpose: 9 behaviou
 - "Outside the key" counts are not false alarms: most are genuine (real CVEs, real untested code, real style issues, missing security headers).
 - Commercial products were not run. Their features are compared in `COMPARISON.md`, from their public documentation.
 
+## Version 2: after fixing what the benchmark showed
+
+TestThisPuppy was then changed to close the gaps above (see the list below), and run again with `automatic-v2.properties` and `spec-v2.properties`. The v1 setups were left untouched. v2 adds one target (`xss.paths=/hello?name=`, the same kind of setting as the injection target), the libraries check, and two spec lines ("renaming one product leaves the others' names").
+
+| Run | Found (audited) | Behaviour | Code | Weak tests | Library | Time |
+|---|---|---|---|---|---|---|
+| TestThisPuppy v2, with a written spec | **18 / 21** | 9/9 | 6/9 | 2/2 | 1/1 | 68 s |
+| TestThisPuppy v2, automatic | **15 / 21** | 6/9 | 6/9 | 2/2 | 1/1 | 69 s |
+
+Still missed: the hard-coded password (C5; SonarQube found it), the empty catch block (C1; PMD's rule deliberately allows a variable named `ignored`, SonarQube found it), and the null dereference (C7; no tool found it).
+
+**Read this score with care.** The fixes were designed from this benchmark's own misses, so v2 shows the fixes work, not how TestThisPuppy does on code it has not seen. A fair check needs new defects written by someone else, scored the same way.
+
 ## What it shows TestThisPuppy should do next
 
-Ranked by defects they would have caught here (estimates, not yet measured):
+All six were done for v2 (results above). Ranked by defects they would have caught here, as estimated before v2:
 
 1. Add SpotBugs with FindSecBugs as a second code engine beside PMD (C8, C9, and the injection statically).
 2. Add a library check by running OSV-Scanner (X1).

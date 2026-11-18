@@ -1,0 +1,252 @@
+﻿mvn : Nov 18, 2026 1:17:52 PM org.openqa.selenium.devtools.CdpVersionFinder findNearestMatch
+At line:1 char:843
++ ... = Get-Date; mvn -q -f C:\projects\testthispuppy\puppy\pom.xml exec:ja ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Nov 18, 2026 1:...indNearestMatch:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: Unable to find CDP implementation matching 157
+Nov 18, 2026 1:17:52 PM org.openqa.selenium.chromium.ChromiumDriver lambda$new$5
+WARNING: Unable to find version of CDP to use for 157.0.8103.39. You may need to include a dependency on a specific 
+version of the CDP using something similar to `org.seleniumhq.selenium:selenium-devtools-v86:4.27.0` where the version 
+("v86") matches the version of the chromium-based browser you're using and the version number of the artifact is the 
+same as Selenium's.
+  check the code: java with pmd, spotbugs, structure, bugs, practices, security, libraries (standard) in C:\projects\testthispuppy\benchmark\bugzoo
+  check the code: SpotBugs (building bugzoo)
+  check the code: libraries (OSV-Scanner)
+  check the code: 48 issue(s); fix list written to C:\projects\testthispuppy\benchmark\puppy\code-fixes.md
+  test the tests: planting bugs in C:\projects\testthispuppy\benchmark\bugzoo (standard)
+    >> Generated 10 Killed 0 (0%)
+    >> Generated 10 Killed 0 (0%)
+    >> Generated 1 Killed 0 (0%)
+    >> Generated 8 Killed 2 (25%)
+    >> Generated 10 Killed 0 (0%)
+    >> Generated 2 Killed 0 (0%)
+    >> Generated 33 Killed 0 (0%)
+    >> Generated 6 Killed 0 (0%)
+    >> Generated 10 Killed 0 (0%)
+    >> Generated 5 Killed 1 (20%)
+    >> Generated 23 Killed 0 (0%)
+    >> Generated 33 Killed 0 (0%)
+    >> Line Coverage (for mutated classes only): 4/136 (3%)
+    >> 13 tests examined
+    >> Generated 151 mutations Killed 3 (2%)
+    >> Mutations with no coverage 143. Test strength 38%
+    >> Ran 8 tests (0.05 tests per mutation)
+
+  PASS  setup    create a throwaway database         2847 ms  PostgreSQL 16 in Docker, schema schema.sql
+  PASS  setup    start the app on the throwaway database  5597 ms  answering at http://localhost:8083
+  PASS  network  resolve the database host              0 ms  localhost is 127.0.0.1
+  PASS  network  reach the database port                1 ms  localhost:61550 accepted a connection
+  PASS  network  ping the database                     14 ms  logged in and SELECT 1 answered; PostgreSQL 16.16 (Debian 16.16-1.pgdg13+1) on x86_64-pc-linux-gnu
+  PASS  network  trace the route to the database       41 ms  1 hop(s) to localhost
+  PASS  setup    seed dummy data                       22 ms  9 rows into 3 tables [member, product, purchase_order]
+  FAIL  errors   error page /puppy-no-such-page        45 ms  status 404: the page shows a stack trace (app internals exposed)
+  FAIL  errors   error page /api/members/search?name=%27    37 ms  status 500: the page shows a stack trace (app internals exposed)
+  FAIL  xss      cross-site scripting: /hello?name=<script>puppyXss7319()</script>    39 ms  the page sent the HTML back unescaped (status 200): a link could run a script in a visitor's browser
+  FAIL  xss      cross-site scripting: /hello?name="><img src=x onerror=puppyXss7319()>    10 ms  the page sent the HTML back unescaped (status 200): a link could run a script in a visitor's browser
+  FAIL  xss      cross-site scripting: /hello?name=<svg onload=puppyXss7319()>    11 ms  the page sent the HTML back unescaped (status 200): a link could run a script in a visitor's browser
+  FAIL  race     25 POST /api/members at once         416 ms  1 of 25 succeeded; member grew by 1 (expected 25)
+  PASS  browser  member form /members/new            1188 ms  filled 2 fields; page said "Saved member 29"
+  PASS  wrong    member form /members/new: required name left empty  1108 ms  refused cleanly: New member
+  FAIL  wrong    member form /members/new: email = "not-an-email"   571 ms  the app SAVED the wrong value
+  PASS  injection member form /members/new: name = ' OR '1'='1   512 ms  stored safely as plain text; tables intact
+  PASS  injection member form /members/new: name = x'); DROP TABLE member; --   593 ms  stored safely as plain text; tables intact
+  PASS  injection member form /members/new: name = 1; DELETE FROM member; --   551 ms  stored safely as plain text; tables intact
+  PASS  injection member form /members/new: email = ' OR '1'='1   538 ms  stored safely as plain text; tables intact
+  PASS  injection member form /members/new: email = x'); DROP TABLE member; --   537 ms  stored safely as plain text; tables intact
+  PASS  injection member form /members/new: email = 1; DELETE FROM member; --   522 ms  stored safely as plain text; tables intact
+  PASS  browser  order form /orders/new               906 ms  filled 4 fields; page said "Saved order 4"
+  FAIL  wrong    order form /orders/new: memberId set to an option that does not exist   974 ms  the app CRASHED (server error) instead of refusing cleanly
+  PASS  wrong    order form /orders/new: required product left empty   950 ms  refused cleanly: New order
+  PASS  wrong    order form /orders/new: quantity = "abc"   916 ms  refused cleanly: Whitelabel Error Page
+  PASS  wrong    order form /orders/new: orderDate = "not-a-date"   904 ms  refused cleanly: Whitelabel Error Page
+  PASS  injection order form /orders/new: product = ' OR '1'='1   802 ms  stored safely as plain text; tables intact
+  PASS  injection order form /orders/new: product = x'); DROP TABLE member; --   875 ms  stored safely as plain text; tables intact
+  PASS  injection order form /orders/new: product = 1; DELETE FROM member; --   927 ms  stored safely as plain text; tables intact
+  PASS  injection api path: /api/members/search?name=' OR '1'='1    25 ms  refused; tables intact
+  FAIL  injection api path: /api/members/search?name=x'); DROP TABLE member; --    17 ms  the app crashed (server error)
+  PASS  injection api path: /api/members/search?name=1; DELETE FROM member; --    19 ms  refused; tables intact
+  PASS  injection api body: /api/members name = ' OR '1'='1    22 ms  stored safely as plain text; tables intact
+  PASS  injection api body: /api/members name = x'); DROP TABLE member; --    23 ms  stored safely as plain text; tables intact
+  PASS  injection api body: /api/members name = 1; DELETE FROM member; --    22 ms  stored safely as plain text; tables intact
+  PASS  cleanup  restore the database                  34 ms  deleted 25, set back 0, put back 0, reset 3 sequences; database matches the snapshot exactly (0 rows)
+  PASS  cleanup  delete the throwaway database          0 ms  container stopped and removed
+  PASS  code     syntax: 0 file(s) could not be read 35958 ms  every file parsed
+  PASS  code     structure: 4 issue(s)                  0 ms  none serious enough to fail the run
+  FAIL  code     bugs: 15 issue(s)                      0 ms  2 serious enough to fail the run, listed below
+  FAIL  code     src/main/java/com/bugzoo/ReportExporter.java:36 STCAL_INVOKE_ON_STATIC_DATE_FORMAT_INSTANCE     0 ms  medium-high: Call to method of static java.text.DateFormat in com.bugzoo.ReportExporter.fill(String, Map)
+  FAIL  code     src/main/java/com/bugzoo/ReportExporter.java:49 RV_ABSOLUTE_VALUE_OF_HASHCODE     0 ms  medium-high: Bad attempt to compute absolute value of signed 32-bit hashcode in com.bugzoo.ReportExporter.bucket(String, int)
+  FAIL  code     practices: 5 issue(s)                  0 ms  2 serious enough to fail the run, listed below
+  FAIL  code     src/main/java/com/bugzoo/MemberRepository.java:6 ImplicitFunctionalInterface     0 ms  medium-high: Annotate this interface with @FunctionalInterface or with @SuppressWarnings("PMD.ImplicitFunctionalInterface") to clarify your intent.
+  FAIL  code     src/main/java/com/bugzoo/ReportExporter.java:31 AvoidFileStream     0 ms  high: Avoid instantiating FileInputStream, FileOutputStream, FileReader, or FileWriter
+  PASS  code     security: 6 issue(s)                   0 ms  none serious enough to fail the run
+  FAIL  code     libraries: 18 issue(s)                 0 ms  13 serious enough to fail the run, listed below
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  high: org.apache.commons:commons-text 1.9: 1 known vulnerability (CVE-2022-42889)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: com.fasterxml.jackson.core:jackson-core 2.19.0: 4 known vulnerabilities (CVE-2026-18401, CVE-2026-89425, CVE-2026-89407, CVE-2026-68494)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: com.fasterxml.jackson.core:jackson-databind 2.19.0: 12 known vulnerabilities (CVE-2026-59888, CVE-2026-59889, CVE-2026-54515, CVE-2026-91777, CVE-2026-83557, CVE-2026-54514 and 6 more)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  high: org.apache.tomcat.embed:tomcat-embed-core 10.1.41: 29 known vulnerabilities (CVE-2025-55668, CVE-2025-53506, CVE-2025-49124, CVE-2026-24880, CVE-2026-43515, CVE-2026-43513 and 23 more)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: org.assertj:assertj-core 3.27.3: 1 known vulnerability (CVE-2026-24400)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: org.postgresql:postgresql 42.7.5: 3 known vulnerabilities (CVE-2026-42198, CVE-2025-49146, CVE-2026-54291)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: org.springframework.boot:spring-boot 3.5.0: 1 known vulnerability (CVE-2026-40973)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: org.springframework.data:spring-data-commons 3.5.0: 4 known vulnerabilities (CVE-2026-41721, CVE-2026-41711, CVE-2026-41695, CVE-2026-41716)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: org.springframework:spring-core 6.2.7: 2 known vulnerabilities (CVE-2026-41848, CVE-2025-41249)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  medium-high: org.springframework:spring-expression 6.2.7: 3 known vulnerabilities (CVE-2026-41852, CVE-2026-41850, CVE-2026-41851)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  high: org.springframework:spring-webmvc 6.2.7: 14 known vulnerabilities (CVE-2026-41845, CVE-2026-22737, CVE-2026-22735, CVE-2026-22745, CVE-2026-41843, CVE-2026-41846 and 8 more)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  high: org.thymeleaf:thymeleaf 3.1.3.RELEASE: 3 known vulnerabilities (CVE-2026-41901, CVE-2026-40477, CVE-2026-40478)
+  FAIL  code     pom.xml:0 VulnerableLibrary            0 ms  high: org.thymeleaf:thymeleaf-spring6 3.1.3.RELEASE: 3 known vulnerabilities (CVE-2026-41901, CVE-2026-40477, CVE-2026-40478)
+  FAIL  mutation test the tests: 3 of 151 planted bugs caught (2%)  4713 ms  needs 80% to pass; each bug not caught is listed below
+  FAIL  mutation not caught: ShippingRules.java:13      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:21      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:22      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:30      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:31      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:33      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:42      0 ms  shippingDays(): Changed increment from -1 to 1 (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:10      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:11      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:12      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:14      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:16      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:18      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:19      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:20      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:22      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:24      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:26      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:27      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:27      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:29      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:31      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:33      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:10      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:11      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:12      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:14      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:16      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:18      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:19      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:20      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:22      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:24      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:26      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:27      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:27      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:29      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:31      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:33      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:13      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:21      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:22      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:30      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:31      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:33      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:13      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:21      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:22      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:30      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:31      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:33      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:39      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:41      0 ms  shippingDays(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: ShippingRules.java:44      0 ms  shippingDays(): replaced int return with 0 for com/bugzoo/ShippingRules::shippingDays (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:45      0 ms  createMember(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:48      0 ms  createMember(): removed call to com/bugzoo/Member::setMemberNumber (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:46      0 ms  createMember(): replaced return value with null for com/bugzoo/ApiController::createMember (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:49      0 ms  createMember(): replaced return value with null for com/bugzoo/ApiController::createMember (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:35      0 ms  listMembers(): replaced return value with Collections.emptyList for com/bugzoo/ApiController::listMembers (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:59      0 ms  listOrders(): replaced return value with Collections.emptyList for com/bugzoo/ApiController::listOrders (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:74      0 ms  listProducts(): replaced return value with Collections.emptyList for com/bugzoo/ApiController::listProducts (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:40      0 ms  readMember(): replaced return value with null for com/bugzoo/ApiController::readMember (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:65      0 ms  renameProduct(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:65      0 ms  renameProduct(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:65      0 ms  renameProduct(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:65      0 ms  renameProduct(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:66      0 ms  renameProduct(): replaced return value with null for com/bugzoo/ApiController::renameProduct (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:69      0 ms  renameProduct(): replaced return value with null for com/bugzoo/ApiController::renameProduct (no test runs this line)
+  FAIL  mutation not caught: ApiController.java:54      0 ms  search(): replaced return value with Collections.emptyList for com/bugzoo/ApiController::search (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:38     0 ms  save(): changed conditional boundary (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:32     0 ms  save(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:32     0 ms  save(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:38     0 ms  save(): removed conditional - replaced comparison check with false (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:38     0 ms  save(): removed conditional - replaced comparison check with true (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:33     0 ms  save(): removed call to jakarta/servlet/http/HttpServletResponse::setStatus (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:39     0 ms  save(): removed call to jakarta/servlet/http/HttpServletResponse::setStatus (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:45     0 ms  save(): removed call to com/bugzoo/PurchaseOrder::setMemberId (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:46     0 ms  save(): removed call to com/bugzoo/PurchaseOrder::setProduct (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:47     0 ms  save(): removed call to com/bugzoo/PurchaseOrder::setQuantity (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:48     0 ms  save(): removed call to com/bugzoo/PurchaseOrder::setOrderDate (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:36     0 ms  save(): replaced return value with "" for com/bugzoo/OrderController::save (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:42     0 ms  save(): replaced return value with "" for com/bugzoo/OrderController::save (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:50     0 ms  save(): replaced return value with "" for com/bugzoo/OrderController::save (no test runs this line)
+  FAIL  mutation not caught: OrderController.java:25     0 ms  showForm(): replaced return value with "" for com/bugzoo/OrderController::showForm (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:49     0 ms  bucket(): Replaced integer modulus with multiplication (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:49     0 ms  bucket(): replaced int return with 0 for com/bugzoo/ReportExporter::bucket (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:36     0 ms  fill(): replaced return value with "" for com/bugzoo/ReportExporter::fill (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:27     0 ms  findHeader(): replaced return value with "" for com/bugzoo/ReportExporter::findHeader (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:32     0 ms  firstLine(): replaced return value with "" for com/bugzoo/ReportExporter::firstLine (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:20     0 ms  header(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:20     0 ms  header(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:21     0 ms  header(): replaced return value with "" for com/bugzoo/ReportExporter::header (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:23     0 ms  header(): replaced return value with "" for com/bugzoo/ReportExporter::header (no test runs this line)
+  FAIL  mutation not caught: ReportExporter.java:45     0 ms  pageSize(): replaced int return with 0 for com/bugzoo/ReportExporter::pageSize (no test runs this line)
+  FAIL  mutation not caught: Member.java:30             0 ms  equals(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: Member.java:30             0 ms  equals(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: Member.java:30             0 ms  equals(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: Member.java:30             0 ms  equals(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: Member.java:30             0 ms  equals(): replaced boolean return with true for com/bugzoo/Member::equals (no test runs this line)
+  FAIL  mutation not caught: Member.java:25             0 ms  getEmail(): replaced return value with "" for com/bugzoo/Member::getEmail (no test runs this line)
+  FAIL  mutation not caught: Member.java:20             0 ms  getId(): replaced Long return value with 0L for com/bugzoo/Member::getId (no test runs this line)
+  FAIL  mutation not caught: Member.java:21             0 ms  getMemberNumber(): replaced int return with 0 for com/bugzoo/Member::getMemberNumber (no test runs this line)
+  FAIL  mutation not caught: Member.java:23             0 ms  getName(): replaced return value with "" for com/bugzoo/Member::getName (no test runs this line)
+  FAIL  mutation not caught: OrderMath.java:12          0 ms  totalCents(): changed conditional boundary (tests ran it but did not notice)
+  FAIL  mutation not caught: OrderMath.java:11          0 ms  totalCents(): Replaced long multiplication with division (tests ran it but did not notice)
+  FAIL  mutation not caught: OrderMath.java:13          0 ms  totalCents(): Replaced long subtraction with addition (tests ran it but did not notice)
+  FAIL  mutation not caught: OrderMath.java:12          0 ms  totalCents(): removed conditional - replaced comparison check with false (tests ran it but did not notice)
+  FAIL  mutation not caught: OrderMath.java:12          0 ms  totalCents(): removed conditional - replaced comparison check with true (tests ran it but did not notice)
+  FAIL  mutation not caught: MemberController.java:29     0 ms  save(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:29     0 ms  save(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:30     0 ms  save(): removed call to jakarta/servlet/http/HttpServletResponse::setStatus (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:35     0 ms  save(): removed call to com/bugzoo/Member::setName (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:36     0 ms  save(): removed call to com/bugzoo/Member::setMemberNumber (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:32     0 ms  save(): replaced return value with "" for com/bugzoo/MemberController::save (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:39     0 ms  save(): replaced return value with "" for com/bugzoo/MemberController::save (no test runs this line)
+  FAIL  mutation not caught: MemberController.java:23     0 ms  showForm(): replaced return value with "" for com/bugzoo/MemberController::showForm (no test runs this line)
+  FAIL  mutation not caught: PurchaseOrder.java:25      0 ms  getId(): replaced Long return value with 0L for com/bugzoo/PurchaseOrder::getId (no test runs this line)
+  FAIL  mutation not caught: PurchaseOrder.java:26      0 ms  getMemberId(): replaced Long return value with 0L for com/bugzoo/PurchaseOrder::getMemberId (no test runs this line)
+  FAIL  mutation not caught: PurchaseOrder.java:32      0 ms  getOrderDate(): replaced return value with null for com/bugzoo/PurchaseOrder::getOrderDate (no test runs this line)
+  FAIL  mutation not caught: PurchaseOrder.java:28      0 ms  getProduct(): replaced return value with "" for com/bugzoo/PurchaseOrder::getProduct (no test runs this line)
+  FAIL  mutation not caught: PurchaseOrder.java:30      0 ms  getQuantity(): replaced int return with 0 for com/bugzoo/PurchaseOrder::getQuantity (no test runs this line)
+  FAIL  mutation not caught: AdminAccess.java:13        0 ms  allowed(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: AdminAccess.java:13        0 ms  allowed(): removed conditional - replaced equality check with false (no test runs this line)
+  FAIL  mutation not caught: AdminAccess.java:13        0 ms  allowed(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: AdminAccess.java:13        0 ms  allowed(): removed conditional - replaced equality check with true (no test runs this line)
+  FAIL  mutation not caught: AdminAccess.java:13        0 ms  allowed(): replaced boolean return with true for com/bugzoo/AdminAccess::allowed (no test runs this line)
+  FAIL  mutation not caught: MemberNumbers.java:15      0 ms  next(): Replaced integer addition with subtraction (no test runs this line)
+  FAIL  mutation not caught: MemberNumbers.java:15      0 ms  next(): replaced int return with 0 for com/bugzoo/MemberNumbers::next (no test runs this line)
+  FAIL  mutation not caught: HelloController.java:14     0 ms  hello(): replaced return value with "" for com/bugzoo/HelloController::hello (no test runs this line)
+  PASS  log      root cause seen 1 time(s)              0 ms  org.postgresql.util.PSQLException: Unterminated string literal started at position 55 in SQL SELECT id, name, email FROM member WHERE name LIKE '%'%'. Expected  char  at org.postgresql.core.Parser.checkParsePosition(Parser.java:1435) ~[postgresql-42.7.5.jar!/:42.7.5]
+
+  33 passed, 178 failed
+
+  HTML report written to C:\projects\testthispuppy\benchmark\puppy\report-automatic-v2.html
+  report written to C:\projects\testthispuppy\benchmark\puppy\report-automatic-v2.json

@@ -1,0 +1,10 @@
+﻿# The written spec: what the shop should do, one request per line. {table.column} comes from the first seeded row.
+name                                         | method | path                                                                                  | body | expectedStatus | expectedText
+GET /api/members lists the members           | GET    | /api/members                                                                          |      | 200            | {member.name}
+POST /members refuses an email with no at sign | POST | /members?name=Spec&email=not-an-email                                                 |      | 400            |
+POST /orders refuses quantity 0              | POST   | /orders?memberId={member.id}&product=Spec&quantity=0&orderDate=2026-11-18             |      | 400            |
+POST /orders refuses a member that does not exist | POST | /orders?memberId=999999999&product=Spec&quantity=2&orderDate=2026-11-18           |      | 400            |
+GET /api/members/search finds a member by name | GET  | /api/members/search?name={member.name}                                                |      | 200            | {member.name}
+PUT /api/products renames only that product      | PUT    | /api/products/{product.id}/name                                                       | Renamed Spec | 204 |
+GET /api/products keeps the other product names    | GET    | /api/products                                                                         |      | 200            | {product.name#2}
+
