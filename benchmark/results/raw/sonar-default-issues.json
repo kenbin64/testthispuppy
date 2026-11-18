@@ -1,0 +1,324 @@
+﻿{
+    "total":  5,
+    "p":  1,
+    "ps":  500,
+    "paging":  {
+                   "pageIndex":  1,
+                   "pageSize":  500,
+                   "total":  5
+               },
+    "effortTotal":  80,
+    "issues":  [
+                   {
+                       "key":  "0b04a1be-d306-4d3c-b501-4febc0f49f64",
+                       "rule":  "java:S2068",
+                       "severity":  "MAJOR",
+                       "component":  "bugzoo:src/main/java/com/bugzoo/AdminAccess.java",
+                       "project":  "bugzoo",
+                       "line":  10,
+                       "hash":  "4a288379a583a9302c379a6e64073e04",
+                       "textRange":  {
+                                         "startLine":  10,
+                                         "endLine":  10,
+                                         "startOffset":  32,
+                                         "endOffset":  46
+                                     },
+                       "flows":  [
+
+                                 ],
+                       "status":  "OPEN",
+                       "message":  "\u0027PASSWORD\u0027 detected in this expression, review this potentially hard-coded password.",
+                       "effort":  "30min",
+                       "debt":  "30min",
+                       "author":  "ken.bingham64@gmail.com",
+                       "tags":  [
+                                    "cwe",
+                                    "cert",
+                                    "secret",
+                                    "former-hotspot"
+                                ],
+                       "creationDate":  "2026-11-18T14:34:30+0000",
+                       "updateDate":  "2026-11-18T14:54:23+0000",
+                       "type":  "VULNERABILITY",
+                       "scope":  "MAIN",
+                       "quickFixAvailable":  false,
+                       "messageFormattings":  [
+
+                                              ],
+                       "codeVariants":  [
+
+                                        ],
+                       "cleanCodeAttribute":  "TRUSTWORTHY",
+                       "cleanCodeAttributeCategory":  "RESPONSIBLE",
+                       "impacts":  [
+                                       {
+                                           "softwareQuality":  "SECURITY",
+                                           "severity":  "MEDIUM"
+                                       }
+                                   ],
+                       "issueStatus":  "OPEN",
+                       "prioritizedRule":  false,
+                       "fromSonarQubeUpdate":  false,
+                       "internalTags":  [
+
+                                        ],
+                       "linkedTicketStatus":  "NOT_LINKED"
+                   },
+                   {
+                       "key":  "edf22505-24e7-448f-93bb-56ef0a1a18a3",
+                       "rule":  "java:S4684",
+                       "severity":  "CRITICAL",
+                       "component":  "bugzoo:src/main/java/com/bugzoo/ApiController.java",
+                       "project":  "bugzoo",
+                       "line":  44,
+                       "hash":  "c32c4f1c277ddd001a8cdab3e9d2f72d",
+                       "textRange":  {
+                                         "startLine":  44,
+                                         "endLine":  44,
+                                         "startOffset":  67,
+                                         "endOffset":  73
+                                     },
+                       "flows":  [
+
+                                 ],
+                       "status":  "OPEN",
+                       "message":  "Replace this persistent entity with a simple POJO or DTO object.",
+                       "effort":  "10min",
+                       "debt":  "10min",
+                       "author":  "ken.bingham64@gmail.com",
+                       "tags":  [
+                                    "cwe",
+                                    "spring"
+                                ],
+                       "creationDate":  "2026-11-18T14:34:30+0000",
+                       "updateDate":  "2026-11-18T14:54:23+0000",
+                       "type":  "VULNERABILITY",
+                       "scope":  "MAIN",
+                       "quickFixAvailable":  false,
+                       "messageFormattings":  [
+
+                                              ],
+                       "codeVariants":  [
+
+                                        ],
+                       "cleanCodeAttribute":  "CONVENTIONAL",
+                       "cleanCodeAttributeCategory":  "CONSISTENT",
+                       "impacts":  [
+                                       {
+                                           "softwareQuality":  "SECURITY",
+                                           "severity":  "HIGH"
+                                       }
+                                   ],
+                       "issueStatus":  "OPEN",
+                       "prioritizedRule":  false,
+                       "fromSonarQubeUpdate":  false,
+                       "internalTags":  [
+
+                                        ],
+                       "linkedTicketStatus":  "NOT_LINKED"
+                   },
+                   {
+                       "key":  "fca2402a-ef14-486b-a772-c49e5926e923",
+                       "rule":  "java:S2077",
+                       "severity":  "MAJOR",
+                       "component":  "bugzoo:src/main/java/com/bugzoo/ApiController.java",
+                       "project":  "bugzoo",
+                       "line":  54,
+                       "hash":  "0a3d73ddb371370ae170c659c67d5946",
+                       "textRange":  {
+                                         "startLine":  54,
+                                         "endLine":  54,
+                                         "startOffset":  33,
+                                         "endOffset":  102
+                                     },
+                       "flows":  [
+
+                                 ],
+                       "status":  "OPEN",
+                       "message":  "Make sure using a dynamically formatted SQL query is safe here.",
+                       "effort":  "20min",
+                       "debt":  "20min",
+                       "author":  "ken.bingham64@gmail.com",
+                       "tags":  [
+                                    "cwe",
+                                    "spring",
+                                    "bad-practice",
+                                    "cert",
+                                    "hibernate",
+                                    "former-hotspot",
+                                    "sql"
+                                ],
+                       "creationDate":  "2026-11-18T14:34:30+0000",
+                       "updateDate":  "2026-11-18T14:54:23+0000",
+                       "type":  "VULNERABILITY",
+                       "scope":  "MAIN",
+                       "quickFixAvailable":  false,
+                       "messageFormattings":  [
+
+                                              ],
+                       "codeVariants":  [
+
+                                        ],
+                       "cleanCodeAttribute":  "COMPLETE",
+                       "cleanCodeAttributeCategory":  "INTENTIONAL",
+                       "impacts":  [
+                                       {
+                                           "softwareQuality":  "MAINTAINABILITY",
+                                           "severity":  "LOW"
+                                       },
+                                       {
+                                           "softwareQuality":  "SECURITY",
+                                           "severity":  "MEDIUM"
+                                       }
+                                   ],
+                       "issueStatus":  "OPEN",
+                       "prioritizedRule":  false,
+                       "fromSonarQubeUpdate":  false,
+                       "internalTags":  [
+
+                                        ],
+                       "linkedTicketStatus":  "NOT_LINKED"
+                   },
+                   {
+                       "key":  "46abdf10-717e-43fe-8180-62648af1d319",
+                       "rule":  "java:S2885",
+                       "severity":  "MAJOR",
+                       "component":  "bugzoo:src/main/java/com/bugzoo/ReportExporter.java",
+                       "project":  "bugzoo",
+                       "line":  16,
+                       "hash":  "d85cb78a54c36049e077ab91758b2ae5",
+                       "textRange":  {
+                                         "startLine":  16,
+                                         "endLine":  16,
+                                         "startOffset":  42,
+                                         "endOffset":  47
+                                     },
+                       "flows":  [
+
+                                 ],
+                       "status":  "OPEN",
+                       "message":  "Make \"STAMP\" an instance variable.",
+                       "effort":  "15min",
+                       "debt":  "15min",
+                       "author":  "ken.bingham64@gmail.com",
+                       "tags":  [
+                                    "multi-threading"
+                                ],
+                       "creationDate":  "2026-11-18T14:34:30+0000",
+                       "updateDate":  "2026-11-18T14:54:23+0000",
+                       "type":  "BUG",
+                       "scope":  "MAIN",
+                       "quickFixAvailable":  false,
+                       "messageFormattings":  [
+
+                                              ],
+                       "codeVariants":  [
+
+                                        ],
+                       "cleanCodeAttribute":  "LOGICAL",
+                       "cleanCodeAttributeCategory":  "INTENTIONAL",
+                       "impacts":  [
+                                       {
+                                           "softwareQuality":  "RELIABILITY",
+                                           "severity":  "MEDIUM"
+                                       }
+                                   ],
+                       "issueStatus":  "OPEN",
+                       "prioritizedRule":  false,
+                       "fromSonarQubeUpdate":  false,
+                       "internalTags":  [
+
+                                        ],
+                       "linkedTicketStatus":  "NOT_LINKED"
+                   },
+                   {
+                       "key":  "c6767112-64cc-44c0-82df-6257b8486d35",
+                       "rule":  "java:S4973",
+                       "severity":  "MAJOR",
+                       "component":  "bugzoo:src/main/java/com/bugzoo/ReportExporter.java",
+                       "project":  "bugzoo",
+                       "line":  20,
+                       "hash":  "853892046665cb1e9424ce3ba631b4b6",
+                       "textRange":  {
+                                         "startLine":  20,
+                                         "endLine":  20,
+                                         "startOffset":  19,
+                                         "endOffset":  21
+                                     },
+                       "flows":  [
+
+                                 ],
+                       "status":  "OPEN",
+                       "message":  "Strings and Boxed types should be compared using \"equals()\".",
+                       "effort":  "5min",
+                       "debt":  "5min",
+                       "author":  "ken.bingham64@gmail.com",
+                       "tags":  [
+                                    "cwe",
+                                    "cert"
+                                ],
+                       "creationDate":  "2026-11-18T14:34:30+0000",
+                       "updateDate":  "2026-11-18T14:54:23+0000",
+                       "type":  "BUG",
+                       "scope":  "MAIN",
+                       "quickFixAvailable":  true,
+                       "messageFormattings":  [
+
+                                              ],
+                       "codeVariants":  [
+
+                                        ],
+                       "cleanCodeAttribute":  "LOGICAL",
+                       "cleanCodeAttributeCategory":  "INTENTIONAL",
+                       "impacts":  [
+                                       {
+                                           "softwareQuality":  "RELIABILITY",
+                                           "severity":  "MEDIUM"
+                                       }
+                                   ],
+                       "issueStatus":  "OPEN",
+                       "prioritizedRule":  false,
+                       "fromSonarQubeUpdate":  false,
+                       "internalTags":  [
+
+                                        ],
+                       "linkedTicketStatus":  "NOT_LINKED"
+                   }
+               ],
+    "components":  [
+                       {
+                           "key":  "bugzoo:src/main/java/com/bugzoo/ApiController.java",
+                           "enabled":  true,
+                           "qualifier":  "FIL",
+                           "name":  "ApiController.java",
+                           "longName":  "src/main/java/com/bugzoo/ApiController.java",
+                           "path":  "src/main/java/com/bugzoo/ApiController.java"
+                       },
+                       {
+                           "key":  "bugzoo:src/main/java/com/bugzoo/ReportExporter.java",
+                           "enabled":  true,
+                           "qualifier":  "FIL",
+                           "name":  "ReportExporter.java",
+                           "longName":  "src/main/java/com/bugzoo/ReportExporter.java",
+                           "path":  "src/main/java/com/bugzoo/ReportExporter.java"
+                       },
+                       {
+                           "key":  "bugzoo",
+                           "enabled":  true,
+                           "qualifier":  "TRK",
+                           "name":  "bugzoo",
+                           "longName":  "bugzoo"
+                       },
+                       {
+                           "key":  "bugzoo:src/main/java/com/bugzoo/AdminAccess.java",
+                           "enabled":  true,
+                           "qualifier":  "FIL",
+                           "name":  "AdminAccess.java",
+                           "longName":  "src/main/java/com/bugzoo/AdminAccess.java",
+                           "path":  "src/main/java/com/bugzoo/AdminAccess.java"
+                       }
+                   ],
+    "facets":  [
+
+               ]
+}

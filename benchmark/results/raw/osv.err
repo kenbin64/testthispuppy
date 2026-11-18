@@ -1,0 +1,12 @@
+﻿docker : Starting filesystem walk for root: /
+At line:1 char:359
++ ... = Get-Date; docker run --rm -v "${b}\bugzoo:/src:ro" ghcr.io/google/o ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Starting filesystem walk for root: /:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Scanned /src/pom.xml file and found 7 packages
+End status: 0 dirs visited, 1 inodes visited, 1 Extract calls, 11.399296ms elapsed, 11.399407ms wall time
+Filtered 6 local/unscannable package/s from the scan.
+Warning: enricher transitivedependency/pomxml may be risky when run on untrusted artifacts. Please ensure you trust 
+the source code and artifacts.

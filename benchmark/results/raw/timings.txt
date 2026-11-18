@@ -1,0 +1,7 @@
+﻿automatic seconds=43
+spec seconds=49
+spotbugs seconds=14
+sonarqube seconds=34 (scanner only; server start 40 s)
+sonarqube-default seconds=15 (server start ~40 s)
+osv-scanner seconds=21
+zap seconds=242

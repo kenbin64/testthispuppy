@@ -1,0 +1,62 @@
+﻿
+TestThisPuppy (automatic): 13 of 21 defects, 172 findings, 156 outside the key
+  B1: wrong member form /members/new: email = "not-an-email" the app SAVED the wrong value
+  B3: wrong member form /members/new: email = "not-an-email" the app SAVED the wrong value
+  B4: wrong order form /orders/new: memberId set to an option that does not exist the app CRASHED (server error) instead of refusing cleanly
+  B5: race 25 POST /api/members at once 1 of 25 succeeded; member grew by 1 (expected 25)
+  B6: injection api path: /api/members/search?name=x'); DROP TABLE member; -- the app crashed (server error)
+  B9: mutation not caught renameProduct(): replaced return value with null for com/bugzoo/ApiController::renameProduct (no test runs this line)
+  C2: medium, bugs: CloseResource. Ensure that resources like this BufferedReader object are closed after use
+  C3: medium, bugs: OverrideBothEqualsAndHashcode. Ensure you override both equals() and hashCode()
+  C4: medium, bugs: CompareObjectsWithEquals. Use equals() to compare object references.
+  C6: medium, structure: CognitiveComplexity. The method 'shippingDays(String, int, boolean, boolean, boolean, int)' has a cognitive complexity of 67, current thresho
+  C8: medium, bugs: SimpleDateFormatNeedsLocale. When instantiating a SimpleDateFormat object, specify a Locale
+  T1: mutation not caught totalCents(): changed conditional boundary (tests ran it but did not notice)
+  T2: mutation not caught totalCents(): changed conditional boundary (tests ran it but did not notice)
+
+TestThisPuppy (with spec): 14 of 21 defects, 177 findings, 157 outside the key
+  B1: http POST /members refuses an email with no at sign status 200 (expected 400)
+  B2: http POST /orders refuses quantity 0 status 200 (expected 400)
+  B3: http POST /members refuses an email with no at sign status 200 (expected 400)
+  B4: http POST /orders refuses a member that does not exist status 500 (expected 400)
+  B5: race 25 POST /api/members at once 1 of 25 succeeded; member grew by 1 (expected 25)
+  B6: injection api path: /api/members/search?name=x'); DROP TABLE member; -- the app crashed (server error)
+  B9: mutation not caught renameProduct(): replaced return value with null for com/bugzoo/ApiController::renameProduct (no test runs this line)
+  C2: medium, bugs: CloseResource. Ensure that resources like this BufferedReader object are closed after use
+  C3: medium, bugs: OverrideBothEqualsAndHashcode. Ensure you override both equals() and hashCode()
+  C4: medium, bugs: CompareObjectsWithEquals. Use equals() to compare object references.
+  C6: medium, structure: CognitiveComplexity. The method 'shippingDays(String, int, boolean, boolean, boolean, int)' has a cognitive complexity of 67, current thresho
+  C8: medium, bugs: SimpleDateFormatNeedsLocale. When instantiating a SimpleDateFormat object, specify a Locale
+  T1: mutation not caught totalCents(): changed conditional boundary (tests ran it but did not notice)
+  T2: mutation not caught totalCents(): changed conditional boundary (tests ran it but did not notice)
+
+SonarQube (default profile): 3 of 21 defects, 5 findings, 2 outside the key
+  B6: java:S2077 VULNERABILITY Make sure using a dynamically formatted SQL query is safe here.
+  C4: java:S4973 BUG Strings and Boxed types should be compared using "equals()".
+  C5: java:S2068 VULNERABILITY 'PASSWORD' detected in this expression, review this potentially hard-coded password.
+
+SonarQube (comprehensive profile): 6 of 21 defects, 15 findings, 9 outside the key
+  B6: java:S2077 VULNERABILITY Make sure using a dynamically formatted SQL query is safe here.
+  C1: java:S108 CODE_SMELL Remove this block of code, fill it in, or add a comment explaining why it is empty.
+  C3: java:S1206 BUG This class overrides "equals()" and should therefore also override "hashCode()".
+  C4: java:S4973 BUG Strings and Boxed types should be compared using "equals()".
+  C5: java:S2068 VULNERABILITY 'PASSWORD' detected in this expression, review this potentially hard-coded password.
+  C6: java:S3776 CODE_SMELL Refactor this method to reduce its Cognitive Complexity from 57 to the 15 allowed.
+
+SpotBugs + FindSecBugs: 5 of 21 defects, 12 findings, 7 outside the key
+  B6: SQL_INJECTION_SPRING_JDBC SECURITY Potential JDBC Injection (Spring JDBC) This use of org/springframework/jdbc/core/JdbcTemplate.queryForList(Ljava/lang/String;
+  C2: OS_OPEN_STREAM BAD_PRACTICE Method may fail to close stream com.bugzoo.ReportExporter.firstLine(File) may fail to close stream
+  C3: HE_EQUALS_USE_HASHCODE BAD_PRACTICE Class defines equals() and uses Object.hashCode() com.bugzoo.Member defines equals and uses Object.hashCode()
+  C4: ES_COMPARING_PARAMETER_STRING_WITH_EQ BAD_PRACTICE Comparison of String parameter using == or != Comparison of String parameter using == or != in com.bugzoo.Rep
+  C9: RV_ABSOLUTE_VALUE_OF_HASHCODE CORRECTNESS Bad attempt to compute absolute value of signed 32-bit hashcode Bad attempt to compute absolute value of signed 32-bit
+
+OWASP ZAP: 4 of 21 defects, 17 findings, 4 outside the key
+  B4: Absence of Anti-CSRF Tokens Absence of Anti-CSRF Tokens http://host.docker.internal:8082/members/new  <form method="post" action="/members"> http://host.docker.
+  B6: SQL Injection SQL Injection http://host.docker.internal:8082/api/members/search?name=%27 name HTTP/1.1 500
+  B7: Cross Site Scripting (DOM Based) Cross Site Scripting (DOM Based) http://host.docker.internal:8082/hello?name=%3Cscript%3Ealert(5397)%3C/script%3E name 
+  B9: Cross-Origin-Resource-Policy Header Missing or Invalid Cross-Origin-Resource-Policy Header Missing or Invalid http://host.docker.internal:8082/ Cross-Origin-Res
+
+OSV-Scanner: 1 of 21 defects, 89 findings, 88 outside the key
+  X1: org.apache.commons:commons-text 1.9 GHSA-599f-7c49-w659 CVE-2022-42889
+
+written results/SCORES.md
