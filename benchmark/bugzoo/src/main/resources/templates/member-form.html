@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head><meta charset="UTF-8"><title>New member</title></head>
+<body>
+<h1>New member</h1>
+<p th:if="${error}" th:text="${error}" id="error"></p>
+<form method="post" action="/members">
+  <label>Name <input name="name" required></label>
+  <label>Email <input name="email" type="email" required></label>
+  <button type="submit">Save member</button>
+</form>
+</body>
+</html>

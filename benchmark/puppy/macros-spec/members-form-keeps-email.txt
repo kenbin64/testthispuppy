@@ -1,0 +1,9 @@
+# Spec: a member saved through the form keeps the email that was typed.
+action      | target                                    | value
+open        | /members/new                              |
+type        | name=name                                 | Spec Keeper
+type        | name=email                                | spec.keeper@example.test
+submit      |                                           |
+expect-text |                                           | Saved member
+open        | /api/members/search?name=Spec%20Keeper    |
+expect-text |                                           | spec.keeper@example.test

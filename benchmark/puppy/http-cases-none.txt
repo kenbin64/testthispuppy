@@ -1,0 +1,2 @@
+# Automatic run: no HTTP expectations written by a person.
+name | method | path | body | expectedStatus | expectedText

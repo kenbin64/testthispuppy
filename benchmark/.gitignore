@@ -1,0 +1,7 @@
+﻿bugzoo/target/
+puppy/report-*.json
+puppy/report-*.html
+puppy/*.log
+puppy/code-fixes.md
+puppy/puppy-analysis.md
+results/raw/

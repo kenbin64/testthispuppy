@@ -1,0 +1,4 @@
+# Which pages exist and what a successful save says. (Page names include the path, so report lines name it.)
+name                      | path          | expectedText
+member form /members/new  | /members/new  | Saved member
+order form /orders/new    | /orders/new   | Saved order

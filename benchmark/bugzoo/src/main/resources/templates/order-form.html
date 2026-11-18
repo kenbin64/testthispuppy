@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head><meta charset="UTF-8"><title>New order</title></head>
+<body>
+<h1>New order</h1>
+<p th:if="${error}" th:text="${error}" id="error"></p>
+<form method="post" action="/orders">
+  <label>Member
+    <select name="memberId" required>
+      <option value="">Choose a member</option>
+      <option th:each="m : ${members}" th:value="${m.id}" th:text="${m.name}"></option>
+    </select>
+  </label>
+  <label>Product <input name="product" required></label>
+  <label>Quantity <input name="quantity" type="number" min="1" required></label>
+  <label>Order date <input name="orderDate" type="date" required></label>
+  <button type="submit">Save order</button>
+</form>
+</body>
+</html>
