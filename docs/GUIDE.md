@@ -36,6 +36,7 @@ Every run follows the same order, and the cleanup always runs, even when somethi
 | Macros | Runs every workflow in the `macros` folder, as many times as `macro.repeat` says. |
 | Restore | Deletes every row added since the snapshot (including rows the app created), sets back changed rows, puts back removed rows, and resets the sequences, in one transaction. |
 | Verify | Takes a second snapshot and confirms it matches the first exactly. |
+| Check the code | Optional (`code.source`). Reads the source without building or running it: syntax first, then structure, likely bugs, practices, security and style, with PMD's established rules (no AI). Writes `code-fixes.md`, a fix list with file, line, the problem and why it matters, for a developer or an AI to work from. The source can be a folder or a Git URL (copied to a temporary folder and deleted afterwards). |
 | Test the tests | Optional (`mutation.project`). Plants small bugs in the app's code one at a time (a flipped comparison, a dropped call, a changed return value), reruns the app's own tests, and scores how many they catch. Each bug they miss is listed with its file and line. Full output in `mutation.log`. |
 | Analyze | Reads the app's log for stack traces and errors, writes `puppy-analysis.md`, and optionally asks Claude to explain any failures. |
 | Report | Prints a table to the console and writes a JSON report and an HTML report. The process exits with 0 when everything passed, 1 when a test failed, and 2 if the run itself crashed. |
@@ -129,6 +130,21 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 | `race.body` | Request body; `{n}` becomes each request's number, so unique values stay unique | none |
 | `race.table` | Table that should grow by exactly the number of requests | none |
 | `race.requests` | How many requests are released at once | `20` |
+
+### Check the code
+
+`db.mode=none` runs only the code check and test the tests, with no app and no database (see `puppy-code.properties`).
+
+| Setting | Meaning | Default |
+|---|---|---|
+| `code.source` | A folder, or a Git URL (copied to a temporary folder, read, then deleted) | none, meaning off |
+| `code.checks` | Which groups: any of `structure`, `bugs`, `practices`, `security`, `style`. Syntax is always checked. | `structure,bugs,practices,security` |
+| `code.level` | `quick`, `standard` or `thorough`: only the most serious issues, more, or everything | `standard` |
+| `code.failOn` | `high`, `medium`, `any` or `never`: which issues fail the run. Everything found is in the fix list either way. | `high` |
+| `code.skip` | Folders to leave out, comma separated, relative to the source, for example `src/test` | none |
+| `code.ignoreRules` | Rules that do not apply to this project, by name, for example `SystemPrintln` for a command-line tool | none |
+
+The fix list is a starting point for judgement, not a verdict. Some rules are right in general and wrong for a given project (a database entity class is meant to be a plain data holder); leave those with a comment, or ignore the rule in the settings.
 
 ### Test the tests (mutation testing)
 

@@ -43,8 +43,11 @@ public final class PuppyRun {
         if (!frames.isBlank()) {
             FrameRecorder.start(config.folder().resolve(frames), Long.parseLong(config.setting("demo.pauseMs", "0")));
         }
-        List<TestResult> results = new ArrayList<>(config.internal() ? runInternal(config) : runExternal(config));
+        // db.mode=none skips the app and database steps, for runs that only check code or tests.
+        List<TestResult> results = new ArrayList<>("none".equalsIgnoreCase(config.mode()) ? List.of()
+                : config.internal() ? runInternal(config) : runExternal(config));
         FrameRecorder.finish();
+        results.addAll(CodeCheck.run(config));              // check the code itself (off unless code.source is set)
         results.addAll(MutationCheck.run(config));          // test the tests (off unless mutation.project is set)
         results.addAll(analyzeLogs(config, results));
         Reporter.print(results);
