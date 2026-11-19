@@ -14,6 +14,7 @@ import java.util.Map;
  *
  *   mvn -q -pl puppy exec:java                      uses puppy/puppy.properties
  *   mvn -q -pl puppy exec:java -Dexec.args=FILE     uses another properties file
+ *   mvn -q -pl puppy exec:java -Dexec.args="check TARGET"   the quick check (snippet, project, repository or site)
  */
 public final class PuppyRun {
     private PuppyRun() {
@@ -27,7 +28,11 @@ public final class PuppyRun {
     public static void main(String[] args) {
         int code;
         try {
-            code = runFromSettings(args) ? 0 : 1;
+            if (args.length > 0 && args[0].equals("check")) {      // the quick check: check <target> [options]
+                code = QuickCheck.run(java.util.Arrays.copyOfRange(args, 1, args.length));
+            } else {
+                code = runFromSettings(args) ? 0 : 1;
+            }
         } catch (Exception e) {
             System.err.println("TestThisPuppy stopped with an error: " + e);
             e.printStackTrace();

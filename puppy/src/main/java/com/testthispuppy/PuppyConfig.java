@@ -56,7 +56,11 @@ public record PuppyConfig(
         try (Reader reader = Files.newBufferedReader(file)) {
             properties.load(reader);
         }
-        Path folder = file.toAbsolutePath().getParent();
+        return of(properties, file.toAbsolutePath().getParent());
+    }
+
+    /** Settings given directly (the quick check builds them from its command line); relative paths are from folder. */
+    public static PuppyConfig of(Properties properties, Path folder) {
         String schema = properties.getProperty("db.schema", "").trim();
         String command = properties.getProperty("app.command", "").trim();
         PuppyConfig config = new PuppyConfig(

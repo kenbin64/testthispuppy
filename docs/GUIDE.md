@@ -2,6 +2,29 @@
 
 Everything you need to run TestThisPuppy, write tests for it, and read what it reports.
 
+## The quick check: no settings file
+
+Point it at something and it works out what to do:
+
+```
+check.cmd -                                   (Windows; ./check.sh on Mac and Linux) code piped in, e.g.  type Snippet.java | check.cmd -
+check.cmd Game.java                           one source file
+check.cmd C:\code\my-app                      a project folder
+check.cmd https://github.com/owner/repo       a Git repository
+check.cmd https://my-site.example             a running site or web app
+```
+
+| Target | What it checks |
+|---|---|
+| A snippet or one file | Syntax first, then bugs and practices. A Java fragment (a method, or loose statements) is wrapped so it parses, without moving any line, so line numbers match what you gave. |
+| A project folder | The code check and its libraries; the project's own unit tests (Maven: every test by name; npm: the test script); test the tests (Maven projects with the pitest plugin). |
+| A Git repository | Copied to a temporary folder, read, then deleted: the code and its libraries. Its tests are not run and it is not built unless you add `--trust`, because running tests or a build runs the project's own code. |
+| A site | Loaded in a real browser: does it answer and how fast, JavaScript errors on the console, same-site links that are broken, error pages that show a stack trace, and security headers (listed as advice). It only reads: no forms are submitted. |
+
+Prefix `site:`, `repo:` or `code:` when an address could be either. Options: `--level quick|standard|thorough`, `--checks`, `--language`, `--globals`, `--skip`, `--trust`, `--no-tests`, `--no-mutation`, `--xss /path?q=` (sites), `--settle` (milliseconds to let a site's scripts run, default 3000), `--out` (folder for the reports, default `puppy-check`).
+
+It tests what software does, not how it looks: functionality, not appearance or images.
+
 ## Contents
 
 1. What a run does
@@ -141,6 +164,7 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 | `code.language` | `auto`, `java` or `javascript`. `auto` picks whichever has more source files. | `auto` |
 | `code.checks` | Which groups: any of `structure`, `bugs`, `practices`, `security`, `style`, `libraries`. Syntax is always checked. | `structure,bugs,practices,security,libraries` |
 | `code.engines` | Java: `pmd` and `spotbugs` (SpotBugs builds the project, so it only runs on a local Maven project, never on code from a URL). JavaScript: `eslint` (installed once, pinned, into `~/.testthispuppy`; needs Node.js). | Java `pmd,spotbugs`; JavaScript `eslint` |
+| `code.build` | `on` lets the check run Maven on a local project: SpotBugs, and working out library versions a parent POM sets (without that, those libraries cannot be checked, and the report says so). Always off for code from a URL. | `on` |
 | `code.globals` | JavaScript names that come from outside the project, such as a library loaded from a CDN (`THREE`). Names declared at the top of the project's own browser scripts are found automatically. | none |
 | `code.level` | `quick`, `standard` or `thorough`: only the most serious issues, more, or everything | `standard` |
 | `code.failOn` | `high`, `medium`, `any` or `never`: which issues fail the run. Everything found is in the fix list either way. | `high` |

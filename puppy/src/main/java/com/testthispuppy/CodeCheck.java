@@ -120,10 +120,12 @@ public final class CodeCheck {
                     notes.add(new TestResult("code", "eslint: did not run", false, e.getMessage(), 0));
                 }
             }
+            // Building runs the project's own build steps, so it is allowed only for a local folder the tester controls.
+            boolean mayBuild = !fromUrl && !"off".equalsIgnoreCase(config.setting("code.build", "on").trim());
             if (engines.contains("spotbugs") && language.equals("java")) {
-                if (fromUrl || !Files.exists(root.resolve("pom.xml"))) {
-                    notes.add(new TestResult("code", "spotbugs: not run", true, fromUrl
-                            ? "SpotBugs needs a build, and code from a URL is never built (building runs the project's own steps); copy it locally to include SpotBugs"
+                if (!mayBuild || !Files.exists(root.resolve("pom.xml"))) {
+                    notes.add(new TestResult("code", "spotbugs: not run", true, !mayBuild
+                            ? "SpotBugs needs a build, and this code may not be built (code from a URL, or code.build=off)"
                             : "SpotBugs needs a Maven project (no pom.xml at the source)", 0));
                 } else {
                     System.out.println("  check the code: SpotBugs (building " + root.getFileName() + ")");
@@ -138,7 +140,14 @@ public final class CodeCheck {
             if (groups.contains("libraries")) {
                 System.out.println("  check the code: libraries (OSV-Scanner)");
                 try {
-                    issues.addAll(LibraryCheck.scan(root));
+                    List<Issue> libraries = LibraryCheck.scan(root, mayBuild);
+                    issues.addAll(libraries);
+                    libraries.stream().filter(i -> i.rule().equals("LibraryScanIncomplete")).findFirst()
+                            .ifPresent(i -> notes.add(new TestResult("code", "libraries: may be incomplete", false, i.message(), 0)));
+                    if (!mayBuild && Files.exists(root.resolve("pom.xml"))) {
+                        notes.add(new TestResult("code", "libraries: may be incomplete", true, "Maven versions set by a parent POM can only be "
+                                + "worked out by running Maven, which is not done for this code; libraries without a version in pom.xml were not checked", 0));
+                    }
                 } catch (IOException e) {
                     notes.add(new TestResult("code", "libraries: not checked", false, e.getMessage(), 0));
                 }
@@ -205,7 +214,9 @@ public final class CodeCheck {
             for (Report.ProcessingError error : report.getProcessingErrors()) {
                 String path = relative(root, error.getFileId().getAbsolutePath());
                 if (isParseError(error.getError())) {
-                    issues.add(new Issue("syntax", path, lineOf(error.getMsg()), 0, "cannot be read as " + language, firstLine(error.getMsg()),
+                    // PMD names the file by its full path; the issue already says which file, so drop it.
+                    String message = firstLine(error.getMsg()).replaceAll(" in file '[^']*'", "").replace("ParseException: Parse exception", "Parse error");
+                    issues.add(new Issue("syntax", path, lineOf(error.getMsg()), 0, "cannot be read as " + language, message,
                             "Nothing else in this file can be checked" + (language.equals("java") ? ", and it will not compile." : "."), ""));
                 } else {        // one of PMD's own rules failed on this file: a tool problem, not a problem in the code
                     issues.add(new Issue("tool", path, 0, 5, "RuleFailed", firstLine(error.getMsg()),

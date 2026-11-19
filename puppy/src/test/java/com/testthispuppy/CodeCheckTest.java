@@ -110,6 +110,15 @@ class CodeCheckTest {
     }
 
     @Test
+    void anOsvComplaintIsCaughtButItsStandingAdviceIsNot() {
+        assertEquals("Error: failed to resolve transitive dependencies: timeout",
+                LibraryCheck.complaint(List.of("Scanning dir /src", "Error: failed to resolve transitive dependencies: timeout")));
+        assertEquals(null, LibraryCheck.complaint(List.of("Scanned /src/pom.xml file and found 5 packages",
+                "Warning: enricher transitivedependency/pomxml may be risky when run on untrusted artifacts.", "No issues found")),
+                "the routine advisory and summary lines are not complaints");
+    }
+
+    @Test
     void readsSpotBugsAndPlacesEachBugInItsFile(@TempDir Path root) throws Exception {
         write(root, "src/main/java/sample/Swallows.java", SWALLOWS);
         String xml = "<BugCollection><BugInstance type='RV_ABSOLUTE_VALUE_OF_HASHCODE' category='CORRECTNESS' rank='9'>"
