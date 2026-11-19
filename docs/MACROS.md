@@ -35,6 +35,18 @@ expect-text |                 | Saved order
 | `no-validate` | | | Switches off the browser's own form checks, as an attacker would, so the server is what gets tested |
 | `wait` | | milliseconds | Pauses (default 500) |
 | `screenshot` | | a file name | Saves a picture of the page |
+| `expect-row` | a table | `column=value`, comma separated | Fails unless the database has a matching row: proves a form stored what was typed, not only that the page said "saved". Waits up to two seconds for the row. Needs a database in the run. |
+| `expect-no-row` | a table | `column=value` | Fails if such a row exists (for example after a delete, or when bad input must not be stored) |
+
+A database check usually pairs with `{typed:field}`, the value the last `type` step put into that field, because dummy values are made fresh on every run:
+
+```
+type        | name=email | {dummy:email}
+submit      |            |
+expect-row  | member     | email={typed:email}
+```
+
+Table and column names must be plain names, and values are passed to the database as parameters, so a macro cannot be used to run other SQL.
 
 ## Targets
 

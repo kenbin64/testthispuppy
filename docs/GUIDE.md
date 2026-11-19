@@ -25,6 +25,28 @@ Prefix `site:`, `repo:` or `code:` when an address could be either. Options: `--
 
 It tests what software does, not how it looks: functionality, not appearance or images.
 
+### Turning a site into a test plan
+
+```
+check.cmd https://my-site.example --plan --copy http://localhost:8080
+```
+
+TestThisPuppy maps the site (read only: it opens up to `--pages` pages, default 25, follows same-site links, and submits nothing), finds every form, and writes a test plan to `puppy-check/plan/`:
+
+| File | What it holds |
+|---|---|
+| `PLAN.md` | What was found, what each form likely stores, and the few things a person must confirm |
+| `plan.properties` | Settings aimed at the copy (`--copy`), with the live address recorded as `guard.liveUrl` |
+| `pages.txt` | Each page with a form that writes: happy path and wrong input in every field |
+| `http-cases.txt` | Every mapped page answers; every search answers |
+| `macros/` | One workflow per form that writes: fill it with fresh dummy data, submit, check nothing broke, and check the database row it should have created |
+
+Searches become cross-site scripting targets. Sign-up forms get a fixed test password; sign-in forms are never submitted (they need a real test account, and passwords are never guessed).
+
+A plan submits forms, so it runs only against a copy of the site, with a copy of its database: never the live one. The guard enforces this: a run whose `app.baseUrl` is the `guard.liveUrl` (same host and port) is refused before anything is touched.
+
+What a person confirms, because it cannot be seen from outside: the words a page shows after a successful save, and which table each form writes to (the plan's guess comes from the form's address). On the benchmark app the plan guessed `member` correctly and `order` for a table really named `purchase_order`; with that corrected, the database check caught a form that said "Saved" but did not store the email.
+
 ## Contents
 
 1. What a run does

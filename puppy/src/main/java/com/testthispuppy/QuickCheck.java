@@ -98,7 +98,10 @@ public final class QuickCheck {
         return options;
     }
 
-    private static List<TestResult> site(String url, Map<String, String> options, Path out) {
+    private static List<TestResult> site(String url, Map<String, String> options, Path out) throws IOException {
+        if (options.containsKey("plan")) {
+            return plan(url, options, out);
+        }
         List<TestResult> results = new ArrayList<>(SiteCheck.check(url, Long.parseLong(options.getOrDefault("settle", "3000"))));
         if (options.containsKey("xss")) {
             Properties p = new Properties();
@@ -107,6 +110,27 @@ public final class QuickCheck {
             results.addAll(XssCheck.check(PuppyConfig.of(p, out)));
         }
         return results;
+    }
+
+    /**
+     * --plan: maps the site (read-only: opens pages, submits nothing) and writes a test plan to <out>/plan, aimed at a
+     * copy of the site (--copy, default http://localhost:8080). The plan records the live address as a guard.
+     */
+    private static List<TestResult> plan(String url, Map<String, String> options, Path out) throws IOException {
+        int maxPages = Integer.parseInt(options.getOrDefault("pages", "25"));
+        String copy = options.getOrDefault("copy", "http://localhost:8080");
+        if (SiteMapper.place(copy).equals(SiteMapper.place(url))) {
+            return List.of(new TestResult("plan", "write a test plan", false, "--copy must be a copy of the site, not the site itself (" + copy + ")", 0));
+        }
+        long start = System.currentTimeMillis();
+        System.out.println("  mapping " + url + " (up to " + maxPages + " pages, read only)");
+        List<SiteMapper.Page> pages = SiteMapper.map(url, maxPages);
+        Path folder = out.resolve("plan");
+        PlanWriter.write(folder, url, copy, pages);
+        long forms = pages.stream().mapToLong(p -> p.forms().size()).sum();
+        long writing = pages.stream().flatMap(p -> p.forms().stream()).filter(f -> f.writes() && !f.signIn()).count();
+        return List.of(new TestResult("plan", "map the site: " + pages.size() + " page(s), " + forms + " form(s), " + writing + " that write", true,
+                "test plan written to " + folder + " (read PLAN.md first)", System.currentTimeMillis() - start));
     }
 
     private static List<TestResult> repository(String url, Map<String, String> options, Path out) throws Exception {

@@ -44,6 +44,12 @@ public final class PuppyRun {
     private static boolean runFromSettings(String[] args) throws Exception {
         Path configFile = Path.of(args.length > 0 ? args[0] : "puppy.properties");
         PuppyConfig config = PuppyConfig.load(configFile);
+        String refusal = SiteMapper.guardRefusal(config);
+        if (refusal != null) {                      // a generated plan never writes to the live site it was mapped from
+            System.out.println("  " + refusal);
+            Reporter.write(List.of(new TestResult("setup", "safety guard", false, refusal, 0)), config.reportFile());
+            return false;
+        }
         String frames = config.setting("demo.frames", "");
         if (!frames.isBlank()) {
             FrameRecorder.start(config.folder().resolve(frames), Long.parseLong(config.setting("demo.pauseMs", "0")));
@@ -214,7 +220,8 @@ public final class PuppyRun {
     }
 
     // Every .txt in the macros folder, each run macro.repeat times with fresh dummy data.
-    private static void runMacros(PuppyConfig config, BrowserTester browser, DummyValues dummy, List<TestResult> results) throws Exception {
+    private static void runMacros(PuppyConfig config, BrowserTester browser, DummyValues dummy, List<TestResult> results,
+                                  Connection connection) throws Exception {
         Path folder = config.folder().resolve(config.setting("browser.macros", "macros"));
         int repeat = Integer.parseInt(config.setting("macro.repeat", "1"));
         if (java.nio.file.Files.isDirectory(folder)) {
@@ -222,7 +229,7 @@ public final class PuppyRun {
             try (var files = java.nio.file.Files.list(folder)) {
                 macros = files.filter(f -> f.toString().endsWith(".txt")).sorted().toList();
             }
-            MacroRunner runner = new MacroRunner(browser.driver(), dummy);
+            MacroRunner runner = new MacroRunner(browser.driver(), dummy, connection);   // the connection lets macros check the database
             for (Path macro : macros) {
                 for (int run = 1; run <= repeat; run++) {
                     TestResult result = runner.run(macro, config.baseUrl(), Map.of(), run == 1 && FrameRecorder.on());
@@ -252,7 +259,7 @@ public final class PuppyRun {
                         results.addAll(injector.testPage(browser, page, config.baseUrl()));
                     }
                 }
-                runMacros(config, browser, dummy, results);
+                runMacros(config, browser, dummy, results, connection);
                 if (injection && !config.setting("injection.createPath", "").isBlank()) {
                     results.addAll(injector.testApi(config.baseUrl(), config.setting("injection.readPath", "/"),
                             config.setting("injection.createPath", ""), config.setting("injection.createBody", "")));
