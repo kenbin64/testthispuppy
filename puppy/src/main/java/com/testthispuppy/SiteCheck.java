@@ -41,6 +41,11 @@ public final class SiteCheck {
     }
 
     public static List<TestResult> check(String url, long settleMs) {
+        return check(url, settleMs, null);
+    }
+
+    /** As check; with out set, the site's CSS problems are also written there as css-fixes.md. */
+    public static List<TestResult> check(String url, long settleMs, java.nio.file.Path out) {
         List<TestResult> results = new ArrayList<>();
         HttpClient client = HttpClient.newBuilder().followRedirects(HttpClient.Redirect.NORMAL).connectTimeout(Duration.ofSeconds(10)).build();
         HttpResponse<String> page;
@@ -55,7 +60,7 @@ public final class SiteCheck {
         results.add(new TestResult("site", "the site answers: " + url, page.statusCode() < 400,
                 "status " + page.statusCode() + " in " + ms + " ms, " + page.body().length() / 1024 + " KB", ms));
         results.addAll(headers(page, url));
-        results.addAll(inBrowser(url, settleMs, client));
+        results.addAll(inBrowser(url, settleMs, client, out));
         java.util.Properties p = new java.util.Properties();
         p.setProperty("app.baseUrl", origin(url));
         results.addAll(ErrorPageCheck.check(PuppyConfig.of(p, java.nio.file.Path.of("."))));
@@ -76,7 +81,7 @@ public final class SiteCheck {
     }
 
     /** Loads the page in headless Chrome, collects console errors, and follows same-site links. */
-    static List<TestResult> inBrowser(String url, long settleMs, HttpClient client) {
+    static List<TestResult> inBrowser(String url, long settleMs, HttpClient client, java.nio.file.Path out) {
         List<TestResult> results = new ArrayList<>();
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--headless=new", "--window-size=1280,900");
@@ -98,6 +103,7 @@ public final class SiteCheck {
             results.add(new TestResult("console", "no JavaScript errors while loading", errors.isEmpty(),
                     errors.isEmpty() ? "the console showed no errors" : errors.size() + " error(s): " + String.join(" | ", errors.stream().limit(5).toList()), 0));
             results.addAll(links(driver, url, client));
+            results.addAll(stylesheets(driver, url, client, out));
         } catch (Exception e) {
             results.add(new TestResult("browser", "page loads in a browser: " + url, false, "the browser could not load it: " + firstLine(e.getMessage()),
                     System.currentTimeMillis() - start));
@@ -139,6 +145,87 @@ public final class SiteCheck {
         results.add(new TestResult("links", "same-site links answer (" + Math.min(targets.size(), MAX_LINKS) + " checked)", broken.isEmpty(),
                 broken.isEmpty() ? (targets.isEmpty() ? "no same-site links on the page" : "all answered") : "broken: " + String.join(", ", broken), 0));
         return results;
+    }
+
+    /**
+     * The page's CSS: every linked stylesheet must load; the site's own CSS (same-site stylesheets and inline style
+     * blocks) is checked with Stylelint for mistakes that make the browser ignore styles. Other sites' stylesheets
+     * (a font service, a CDN) are only checked for loading, not judged.
+     */
+    @SuppressWarnings("unchecked")
+    static List<TestResult> stylesheets(WebDriver driver, String url, HttpClient client, java.nio.file.Path out) {
+        List<TestResult> results = new ArrayList<>();
+        List<String> sheets = (List<String>) ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                "return Array.from(document.querySelectorAll('link[rel~=stylesheet][href]')).map(l => l.href);");
+        List<String> inline = (List<String>) ((org.openqa.selenium.JavascriptExecutor) driver).executeScript(
+                "return Array.from(document.querySelectorAll('style')).map(s => s.textContent);");
+        String origin = origin(url);
+        List<String> failed = new ArrayList<>();
+        Map<String, String> own = new java.util.LinkedHashMap<>();            // file name in the temp folder -> where the CSS came from
+        Map<String, String> ownText = new java.util.LinkedHashMap<>();
+        for (String sheet : sheets) {
+            try {
+                HttpResponse<String> r = client.send(HttpRequest.newBuilder(URI.create(sheet)).timeout(Duration.ofSeconds(15)).GET().build(),
+                        HttpResponse.BodyHandlers.ofString());
+                if (r.statusCode() >= 400) {
+                    failed.add(sheet + " (" + r.statusCode() + ")");
+                } else if (sheet.startsWith(origin) && !sheet.contains(".min.")) {
+                    String file = "sheet-" + (own.size() + 1) + ".css";
+                    own.put(file, sheet);
+                    ownText.put(file, r.body());
+                }
+            } catch (Exception e) {
+                failed.add(sheet + " (no answer)");
+            }
+        }
+        for (int i = 0; i < inline.size(); i++) {
+            if (!inline.get(i).isBlank()) {
+                String file = "inline-style-" + (i + 1) + ".css";
+                own.put(file, url + " (inline <style> block " + (i + 1) + ")");
+                ownText.put(file, inline.get(i));
+            }
+        }
+        results.add(new TestResult("css", "stylesheets load (" + sheets.size() + ")", failed.isEmpty(),
+                failed.isEmpty() ? (sheets.isEmpty() ? "no linked stylesheets" : "all loaded") : "failed: " + String.join(", ", failed), 0));
+        if (!own.isEmpty()) {
+            results.add(lintOwnCss(own, ownText, url, out));
+        }
+        return results;
+    }
+
+    /** Checks the site's own CSS with Stylelint in a temporary folder; findings name the address the CSS came from. */
+    private static TestResult lintOwnCss(Map<String, String> own, Map<String, String> text, String url, java.nio.file.Path out) {
+        java.nio.file.Path temp = null;
+        try {
+            temp = java.nio.file.Files.createTempDirectory("puppy-site-css-");
+            for (var e : text.entrySet()) {
+                java.nio.file.Files.writeString(temp.resolve(e.getKey()), e.getValue());
+            }
+            java.nio.file.Path log = out == null ? temp.resolve("stylelint.log") : out.resolve("stylelint.log");
+            List<CodeCheck.Issue> issues = StylelintEngine.run(temp, List.of(), log).stream()
+                    .map(i -> new CodeCheck.Issue(i.group(), own.getOrDefault(i.path(), i.path()), i.line(), i.priority(), i.rule(), i.message(), i.why(), i.link()))
+                    .toList();
+            if (out != null) {
+                java.nio.file.Files.writeString(out.resolve("css-fixes.md"), CodeCheck.fixList(url, List.of("css"), "standard", issues));
+            }
+            List<CodeCheck.Issue> serious = issues.stream().filter(i -> i.priority() <= 2).toList();
+            return new TestResult("css", "the site's own CSS (" + own.size() + " source(s)): " + issues.size() + " issue(s)", serious.isEmpty(),
+                    serious.isEmpty() ? "none that make the browser ignore styles" + (out == null ? "" : "; all in css-fixes.md")
+                            : serious.size() + " that make the browser ignore styles: " + String.join("; ", serious.stream().limit(5)
+                            .map(i -> i.path() + " line " + i.line() + ": " + i.message()).toList()), 0);
+        } catch (Exception e) {
+            return new TestResult("css", "the site's own CSS", false, "not checked: " + e.getMessage(), 0);
+        } finally {
+            if (temp != null) {
+                try (var files = java.nio.file.Files.walk(temp)) {
+                    for (java.nio.file.Path f : files.sorted(java.util.Comparator.reverseOrder()).toList()) {
+                        java.nio.file.Files.deleteIfExists(f);
+                    }
+                } catch (java.io.IOException ignored) {
+                    // a leftover temporary file is harmless
+                }
+            }
+        }
     }
 
     static String origin(String url) {

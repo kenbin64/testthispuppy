@@ -19,7 +19,7 @@ check.cmd https://my-site.example             a running site or web app
 | A snippet or one file | Syntax first, then bugs and practices. A Java fragment (a method, or loose statements) is wrapped so it parses, without moving any line, so line numbers match what you gave. |
 | A project folder | The code check and its libraries; the project's own unit tests (Maven: every test by name; npm: the test script); test the tests (Maven projects with the pitest plugin). |
 | A Git repository | Copied to a temporary folder, read, then deleted: the code and its libraries. Its tests are not run and it is not built unless you add `--trust`, because running tests or a build runs the project's own code. |
-| A site | Loaded in a real browser: does it answer and how fast, JavaScript errors on the console, same-site links that are broken, error pages that show a stack trace, and security headers (listed as advice). It only reads: no forms are submitted. |
+| A site | Loaded in a real browser: does it answer and how fast, JavaScript errors on the console, same-site links that are broken, stylesheets that fail to load, mistakes in the site's own CSS (Stylelint; written to `css-fixes.md`), error pages that show a stack trace, and security headers (listed as advice). It only reads: no forms are submitted. |
 
 Prefix `site:`, `repo:` or `code:` when an address could be either. Options: `--level quick|standard|thorough`, `--checks`, `--language`, `--globals`, `--skip`, `--trust`, `--no-tests`, `--no-mutation`, `--xss /path?q=` (sites), `--settle` (milliseconds to let a site's scripts run, default 3000), `--out` (folder for the reports, default `puppy-check`).
 
@@ -184,7 +184,7 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 |---|---|---|
 | `code.source` | A folder, or a Git URL (copied to a temporary folder, read, then deleted) | none, meaning off |
 | `code.language` | `auto`, `java` or `javascript`. `auto` picks whichever has more source files. | `auto` |
-| `code.checks` | Which groups: any of `structure`, `bugs`, `practices`, `security`, `style`, `libraries`. Syntax is always checked. | `structure,bugs,practices,security,libraries` |
+| `code.checks` | Which groups: any of `structure`, `bugs`, `practices`, `security`, `style`, `libraries`, `css`. Syntax is always checked. | `structure,bugs,practices,security,libraries,css` |
 | `code.engines` | Java: `pmd` and `spotbugs` (SpotBugs builds the project, so it only runs on a local Maven project, never on code from a URL). JavaScript: `eslint` (installed once, pinned, into `~/.testthispuppy`; needs Node.js). | Java `pmd,spotbugs`; JavaScript `eslint` |
 | `code.build` | `on` lets the check run Maven on a local project: SpotBugs, and working out library versions a parent POM sets (without that, those libraries cannot be checked, and the report says so). Always off for code from a URL. | `on` |
 | `code.globals` | JavaScript names that come from outside the project, such as a library loaded from a CDN (`THREE`). Names declared at the top of the project's own browser scripts are found automatically. | none |
@@ -192,6 +192,8 @@ Settings live in a properties file (`puppy.properties` by default). Paths are re
 | `code.failOn` | `high`, `medium`, `any` or `never`: which issues fail the run. Everything found is in the fix list either way. | `high` |
 | `code.skip` | Folders to leave out, comma separated, relative to the source, for example `src/test`. Dependencies, build output and minified files are always left out. | none |
 | `code.ignoreRules` | Rules that do not apply to this project, by name, for example `SystemPrintln` for a command-line tool | none |
+
+The `css` group runs Stylelint (pinned, installed once into `~/.testthispuppy`; needs Node.js) over the project's own `.css` files, whatever its main language, with its recommended rules: mistakes that make the browser ignore a style (a misspelt property, an invalid value, a shorthand overriding what came before, broken syntax), not style preferences. It checks that CSS works, not how a page looks.
 
 The `libraries` group runs OSV-Scanner (Google's open-source scanner, pinned version, in Docker) over the project's dependency files (`pom.xml`, `package-lock.json` and others) and lists each library with known vulnerabilities, rated by its most severe one.
 

@@ -159,6 +159,34 @@ class CodeCheckTest {
     }
 
     @Test
+    void readsStylelintAndRatesIgnoredStylesHigher(@TempDir Path root) throws Exception {
+        String css = root.resolve("css/site.css").toString().replace("\\", "\\\\");
+        String json = "[{\"source\": \"" + css + "\", \"warnings\": ["
+                + "{\"line\": 1, \"rule\": \"property-no-unknown\", \"severity\": \"error\", \"text\": \"Unknown property \\\"colr\\\" (property-no-unknown)\"},"
+                + "{\"line\": 3, \"rule\": \"block-no-empty\", \"severity\": \"error\", \"text\": \"Empty block (block-no-empty)\"},"
+                + "{\"line\": 9, \"rule\": \"CssSyntaxError\", \"severity\": \"error\", \"text\": \"Unclosed block (CssSyntaxError)\"}]}]";
+        List<CodeCheck.Issue> issues = StylelintEngine.read(json, root);
+        assertEquals("css/site.css", issues.get(0).path());
+        assertEquals(2, issues.get(0).priority(), "an unknown property is ignored by the browser: rated higher");
+        assertEquals("Unknown property \"colr\"", issues.get(0).message(), "the rule name is not repeated in the message");
+        assertEquals(3, issues.get(1).priority());
+        assertEquals("syntax", issues.get(2).group());
+    }
+
+    @Test
+    void findsCssOnlyWhereItIsTheProjectsOwn(@TempDir Path root) throws Exception {
+        write(root, "node_modules/lib/x.css", "a{}");
+        write(root, "web/app.min.css", "a{}");
+        assertFalse(StylelintEngine.hasCss(root, List.of()), "dependencies and minified files do not count");
+        write(root, "web/app.css", "a { color: red; }");
+        assertTrue(StylelintEngine.hasCss(root, List.of()));
+        assertFalse(StylelintEngine.hasCss(root, List.of("web")), "a skipped folder does not count");
+        assertEquals("css", QuickCheck.guessLanguage(null, ".card { color: red; margin: 0 }"));
+        assertEquals("javascript", QuickCheck.guessLanguage(null, "const card = { color: 'red' };"));
+        assertEquals("css", QuickCheck.guessLanguage("site.css", "anything"));
+    }
+
+    @Test
     void recognisesGitAddresses() {
         assertTrue(CodeCheck.isGitUrl("https://github.com/kenbin64/testthispuppy.git"));
         assertTrue(CodeCheck.isGitUrl("https://github.com/kenbin64/testthispuppy"));

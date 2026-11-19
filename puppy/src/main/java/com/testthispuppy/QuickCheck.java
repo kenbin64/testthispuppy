@@ -102,7 +102,7 @@ public final class QuickCheck {
         if (options.containsKey("plan")) {
             return plan(url, options, out);
         }
-        List<TestResult> results = new ArrayList<>(SiteCheck.check(url, Long.parseLong(options.getOrDefault("settle", "3000"))));
+        List<TestResult> results = new ArrayList<>(SiteCheck.check(url, Long.parseLong(options.getOrDefault("settle", "3000")), out));
         if (options.containsKey("xss")) {
             Properties p = new Properties();
             p.setProperty("app.baseUrl", SiteCheck.origin(url));
@@ -184,12 +184,18 @@ public final class QuickCheck {
         String language = options.getOrDefault("language", guessLanguage(name, code));
         Path folder = Files.createTempDirectory("puppy-snippet-");
         try {
-            String file = name != null ? name : language.equals("java") ? "Snippet.java" : "snippet.js";
+            String file = name != null ? name : language.equals("java") ? "Snippet.java" : language.equals("css") ? "snippet.css" : "snippet.js";
             Files.writeString(folder.resolve(file), language.equals("java") ? wrapJava(code) : code, StandardCharsets.UTF_8);
             Properties p = codeSettings(folder.toString(), options);
-            p.setProperty("code.language", language);
-            p.setProperty("code.engines", options.getOrDefault("engines", language.equals("java") ? "pmd" : "eslint"));   // a snippet is never built
-            p.setProperty("code.checks", options.getOrDefault("checks", "structure,bugs,practices,security"));
+            if (language.equals("css")) {               // CSS has its own engine; the Java and JavaScript engines have nothing to read
+                p.setProperty("code.language", "javascript");
+                p.setProperty("code.engines", "none");
+                p.setProperty("code.checks", "css");
+            } else {
+                p.setProperty("code.language", language);
+                p.setProperty("code.engines", options.getOrDefault("engines", language.equals("java") ? "pmd" : "eslint"));   // a snippet is never built
+                p.setProperty("code.checks", options.getOrDefault("checks", "structure,bugs,practices,security"));
+            }
             return CodeCheck.run(PuppyConfig.of(p, out));
         } finally {
             deleteFolder(folder);
@@ -212,7 +218,11 @@ public final class QuickCheck {
     /** From the file name if there is one, otherwise from what the code looks like. */
     static String guessLanguage(String fileName, String code) {
         if (fileName != null) {
-            return fileName.endsWith(".java") ? "java" : "javascript";
+            return fileName.endsWith(".java") ? "java" : fileName.endsWith(".css") ? "css" : "javascript";
+        }
+        // CSS: selector blocks of property: value; with no JavaScript or Java keywords.
+        if (code.matches("(?s)\\s*[^{}]+\\{\\s*[-\\w]+\\s*:[^{}]*}.*") && !code.matches("(?s).*\\b(function|const|let|var|return|class|public)\\b.*")) {
+            return "css";
         }
         boolean java = code.matches("(?s).*\\b(public|private|protected)\\s+(static\\s+)?[\\w<>\\[\\]]+\\s+\\w+\\s*\\(.*")
                 || code.matches("(?s).*\\b(class|interface|record|enum)\\s+\\w+.*") && code.contains(";") && !code.contains("=>")

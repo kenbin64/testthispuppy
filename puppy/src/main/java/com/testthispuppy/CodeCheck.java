@@ -45,6 +45,7 @@ public final class CodeCheck {
         GROUPS.put("security", List.of("security"));
         GROUPS.put("style", List.of("codestyle", "documentation"));
         GROUPS.put("libraries", List.of());
+        GROUPS.put("css", List.of());          // Stylelint, over the project's .css files, whatever its main language
     }
     /** For each language: PMD's name for it and the file endings that belong to it. */
     static final Map<String, String> PMD_LANGUAGE = Map.of("java", "java", "javascript", "ecmascript");
@@ -70,7 +71,7 @@ public final class CodeCheck {
         String level = config.setting("code.level", "standard").trim().toLowerCase();
         String failOn = config.setting("code.failOn", "high").trim().toLowerCase();
         String language = config.setting("code.language", "auto").trim().toLowerCase();
-        List<String> groups = list(config.setting("code.checks", "structure,bugs,practices,security,libraries"));
+        List<String> groups = list(config.setting("code.checks", "structure,bugs,practices,security,libraries,css"));
         String enginesSetting = config.setting("code.engines", "").trim();
         List<String> unknown = groups.stream().filter(g -> !GROUPS.containsKey(g)).toList();
         if (!LEVELS.containsKey(level) || !FAIL_ON.containsKey(failOn) || !unknown.isEmpty()
@@ -135,6 +136,15 @@ public final class CodeCheck {
                     } catch (IOException e) {
                         notes.add(new TestResult("code", "spotbugs: did not run", false, e.getMessage(), 0));
                     }
+                }
+            }
+            if (groups.contains("css") && StylelintEngine.hasCss(root, skip)) {
+                System.out.println("  check the code: CSS (Stylelint)");
+                try {
+                    StylelintEngine.run(root, skip, config.folder().resolve("stylelint.log")).stream()
+                            .filter(i -> i.group().equals("syntax") || i.priority() <= LEVELS.get(level)).forEach(issues::add);
+                } catch (IOException e) {
+                    notes.add(new TestResult("code", "css: not checked", false, e.getMessage(), 0));
                 }
             }
             if (groups.contains("libraries")) {
