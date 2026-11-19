@@ -28,7 +28,10 @@ public final class PuppyRun {
     public static void main(String[] args) {
         int code;
         try {
-            if (args.length > 0 && args[0].equals("check")) {      // the quick check: check <target> [options]
+            if (args.length > 0 && args[0].equals("web")) {        // the browser app: web [--phone] [--port N]
+                WebApp.run(java.util.Arrays.copyOfRange(args, 1, args.length));
+                code = 0;
+            } else if (args.length > 0 && args[0].equals("check")) {      // the quick check: check <target> [options]
                 code = QuickCheck.run(java.util.Arrays.copyOfRange(args, 1, args.length));
             } else {
                 code = runFromSettings(args) ? 0 : 1;

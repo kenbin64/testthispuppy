@@ -48,6 +48,16 @@ Behind it are 55 unit, controller, regression and error-path tests. The error-pa
 - **Watch a recorded real run, step by step:** [butterflyfx.us/work/testthispuppy-demo.html](https://butterflyfx.us/work/testthispuppy-demo.html)
 - **Run the demo yourself:** with Java 21, Maven, Docker and Chrome installed, run `demo.cmd` (Windows) or `./demo.sh` (Mac and Linux) from this folder. It checks what it needs, builds everything, runs every check on a throwaway database with Chrome visible so you can watch, and opens an HTML report at the end. Each browser step is also saved as a captioned frame in `puppy/demo-frames`.
 
+## In your browser, on your computer or your phone
+
+Run `web.cmd` (Windows) or `./web.sh` (Mac and Linux). A page opens: paste code, or pick a project folder, a Git
+address or a website; press **Run the check**; watch the log live; read the result as pass and fail counts, the
+failures and the issues worth a look, with links to the full report and the fix list. Past checks are listed below.
+
+Everything runs on your computer and nothing is uploaded. The server answers only this computer, and every request
+needs the secret token in the address it opened. Add `--phone` to also use it from a phone or tablet on the same
+Wi-Fi: the window shows an address and a 6-digit PIN (five wrong PINs lock phone sign-in until restart).
+
 ## Quick start
 
 You need Java 21, Maven, Docker and Chrome.

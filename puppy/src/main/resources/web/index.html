@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TestThisPuppy</title>
+<style>
+  :root { --bg:#0b1220; --card:#14233a; --line:#24405f; --text:#e6edf3; --dim:#9fb3c8; --teal:#2dd4bf; --pink:#f472b6; --red:#f87171; --green:#4ade80; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.45 "Segoe UI", system-ui, sans-serif; }
+  header { padding:18px 16px 8px; border-left:6px solid var(--teal); }
+  h1 { margin:0; font-size:26px; } .tag { color:var(--teal); margin:2px 0 0; }
+  main { max-width:880px; margin:0 auto; padding:8px 16px 40px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin:14px 0; }
+  h2 { font-size:18px; margin:0 0 10px; }
+  .kinds { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .kinds button { padding:12px 6px; border-radius:10px; border:1px solid var(--line); background:#0f1b2d; color:var(--text); font-size:15px; cursor:pointer; }
+  .kinds button.on { border-color:var(--teal); background:#103a3a; color:#fff; font-weight:700; }
+  label { display:block; margin:12px 0 4px; color:var(--dim); font-size:14px; }
+  input[type=text], input[type=password], textarea, select { width:100%; padding:12px; border-radius:10px; border:1px solid var(--line); background:#0a1424; color:var(--text); font-size:16px; }
+  textarea { min-height:180px; font:14px/1.4 Consolas, monospace; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .check { display:flex; gap:8px; align-items:center; margin:10px 0 0; color:var(--text); font-size:15px; }
+  .check input { width:22px; height:22px; }
+  .hint { color:var(--dim); font-size:13px; margin:6px 0 0; }
+  .go { width:100%; margin-top:16px; padding:16px; font-size:19px; font-weight:800; border:0; border-radius:12px; background:var(--teal); color:#062a26; cursor:pointer; }
+  .go:disabled { opacity:.5; cursor:wait; }
+  .small { padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:#0f1b2d; color:var(--text); cursor:pointer; font-size:14px; }
+  pre#log { background:#060d18; border-radius:10px; padding:12px; max-height:340px; overflow:auto; font:13px/1.4 Consolas, monospace; white-space:pre-wrap; word-break:break-word; margin:0; }
+  .totals { display:flex; gap:12px; margin:4px 0 10px; }
+  .total { flex:1; text-align:center; padding:12px; border-radius:12px; background:#0f1b2d; }
+  .total b { display:block; font-size:34px; } .pass b { color:var(--green); } .fail b { color:var(--red); }
+  .failure { border-left:4px solid var(--red); padding:6px 10px; margin:8px 0; background:#1d1622; border-radius:6px; }
+  .failure .d { color:var(--dim); font-size:14px; }
+  .failure.look { border-left-color:#facc15; background:#1f1d14; }
+  .links a { display:inline-block; margin:6px 8px 0 0; padding:10px 14px; border-radius:10px; background:#103a3a; color:#fff; text-decoration:none; }
+  .err { color:var(--pink); margin-top:10px; }
+  .runs > div { padding:10px 0; border-top:1px solid var(--line); cursor:pointer; }
+  .runs .meta { color:var(--dim); font-size:13px; }
+  .hidden { display:none; }
+  #dirs { max-height:220px; overflow:auto; margin-top:8px; }
+  #dirs div { padding:8px 10px; border-bottom:1px solid var(--line); cursor:pointer; }
+  @media (max-width:560px) { .kinds { grid-template-columns:repeat(2,1fr); } h1 { font-size:22px; } }
+</style>
+</head>
+<body>
+<header><h1>TestThisPuppy</h1><p class="tag">Don't read the code. Test the code.</p></header>
+<main>
+
+  <section id="signin" class="card hidden">
+    <h2>Sign in from this device</h2>
+    <p class="hint">Type the 6-digit PIN shown in the TestThisPuppy window on your computer.</p>
+    <input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
+    <button class="go" id="pinGo">Sign in</button>
+    <div class="err" id="pinErr"></div>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="card">
+      <h2>1. What do you want to test?</h2>
+      <div class="kinds">
+        <button data-kind="snippet" class="on">Paste code</button>
+        <button data-kind="project">A folder</button>
+        <button data-kind="repository">A Git repo</button>
+        <button data-kind="site">A website</button>
+      </div>
+
+      <div data-for="snippet">
+        <label for="language">Language</label>
+        <select id="language"><option value="java">Java</option><option value="javascript">JavaScript</option><option value="css">CSS</option></select>
+        <label for="code">Code</label>
+        <textarea id="code" spellcheck="false" placeholder="Paste a class, a function or a stylesheet"></textarea>
+      </div>
+
+      <div data-for="project" class="hidden">
+        <label for="folder">Project folder on the computer running TestThisPuppy</label>
+        <input id="folder" type="text" placeholder="C:\code\my-app">
+        <button class="small" id="browse" style="margin-top:8px">Browse folders</button>
+        <div id="dirs" class="hidden"></div>
+        <label class="check"><input type="checkbox" id="noTests"> Skip the project's own unit tests</label>
+        <label class="check"><input type="checkbox" id="noMutation"> Skip "test the tests" (faster)</label>
+      </div>
+
+      <div data-for="repository" class="hidden">
+        <label for="repo">Git address</label>
+        <input id="repo" type="text" placeholder="https://github.com/owner/project">
+        <label class="check"><input type="checkbox" id="trust"> I trust this code: also run its tests</label>
+        <p class="hint">Without this, the code is only read. Running tests runs the project's own code.</p>
+      </div>
+
+      <div data-for="site" class="hidden">
+        <label for="site">Site address</label>
+        <input id="site" type="text" placeholder="https://example.com">
+        <p class="hint">Read-only: pages are opened, nothing is submitted.</p>
+        <label class="check"><input type="checkbox" id="plan"> Also write a test plan for a copy of this site</label>
+        <div id="copyBox" class="hidden"><label for="copy">Address of the copy</label><input id="copy" type="text" value="http://localhost:8080"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2. How deep?</h2>
+      <select id="level"><option value="quick">Quick</option><option value="standard" selected>Standard</option><option value="thorough">Thorough</option></select>
+      <button class="go" id="run">Run the check</button>
+      <div class="err" id="runErr"></div>
+    </div>
+
+    <div class="card hidden" id="progress">
+      <h2 id="status">Running...</h2>
+      <div id="result" class="hidden">
+        <div class="totals"><div class="total pass"><b id="passed">0</b>passed</div><div class="total fail"><b id="failed">0</b>failed</div></div>
+        <div id="failures"></div>
+        <div class="links" id="links"></div>
+      </div>
+      <details id="logBox" open><summary class="hint">Live log</summary><pre id="log"></pre></details>
+    </div>
+
+    <div class="card">
+      <h2>Past checks</h2>
+      <div class="runs" id="runs"><p class="hint">None yet.</p></div>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+// The token lets this page talk to TestThisPuppy. This computer gets it after the # in the address it opened;
+// a phone gets it by signing in with the PIN. Kept for this tab only.
+let token = location.hash.slice(1);
+try { if (token) sessionStorage.setItem("puppy", token); else token = sessionStorage.getItem("puppy") || ""; } catch (e) {}
+if (location.hash) history.replaceState(null, "", location.pathname);
+const $ = (id) => document.getElementById(id);
+let kind = "snippet", pollTimer = null;
+
+async function api(path, options = {}) {
+  const res = await fetch(path, { ...options, headers: { "Content-Type": "application/json", "X-Puppy-Token": token, ...(options.headers || {}) } });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || ("error " + res.status));
+  return body;
+}
+
+function show(id, on) { $(id).classList.toggle("hidden", !on); }
+
+async function start() {
+  try { const info = await api("/api/info"); show("app", true); show("signin", false); loadRuns(); if (info.busy) $("status").textContent = "A check is running..."; }
+  catch (e) { show("signin", true); show("app", false); }
+}
+
+$("pinGo").onclick = async () => {
+  $("pinErr").textContent = "";
+  try { const r = await api("/api/login", { method: "POST", body: JSON.stringify({ pin: $("pin").value.trim() }) });
+        token = r.token; try { sessionStorage.setItem("puppy", token); } catch (e) {} start(); }
+  catch (e) { $("pinErr").textContent = e.message; }
+};
+
+document.querySelectorAll(".kinds button").forEach((b) => b.onclick = () => {
+  kind = b.dataset.kind;
+  document.querySelectorAll(".kinds button").forEach((x) => x.classList.toggle("on", x === b));
+  document.querySelectorAll("[data-for]").forEach((d) => d.classList.toggle("hidden", d.dataset.for !== kind));
+});
+$("plan").onchange = () => show("copyBox", $("plan").checked);
+
+$("browse").onclick = () => browse($("folder").value.trim());
+async function browse(path) {
+  try {
+    const r = await api("/api/dirs" + (path ? "?path=" + encodeURIComponent(path) : ""));
+    $("folder").value = r.path;
+    const box = $("dirs"); box.innerHTML = ""; show("dirs", true);
+    const add = (text, target) => { const d = document.createElement("div"); d.textContent = text; d.onclick = () => browse(target); box.appendChild(d); };
+    if (r.parent) add("⬆ up one folder", r.parent);
+    r.dirs.forEach((name) => add("📁 " + name, r.path.replace(/[\\/]$/, "") + (r.path.includes("\\") ? "\\" : "/") + name));
+  } catch (e) { $("runErr").textContent = e.message; }
+}
+
+$("run").onclick = async () => {
+  $("runErr").textContent = "";
+  const req = { kind, level: $("level").value };
+  if (kind === "snippet") Object.assign(req, { code: $("code").value, language: $("language").value });
+  if (kind === "project") Object.assign(req, { target: $("folder").value.trim(), noTests: $("noTests").checked, noMutation: $("noMutation").checked });
+  if (kind === "repository") Object.assign(req, { target: $("repo").value.trim(), trust: $("trust").checked });
+  if (kind === "site") Object.assign(req, { target: $("site").value.trim(), plan: $("plan").checked, copy: $("copy").value.trim() });
+  try { const r = await api("/api/run", { method: "POST", body: JSON.stringify(req) }); follow(r.id); }
+  catch (e) { $("runErr").textContent = e.message; }
+};
+
+function follow(id) {
+  clearTimeout(pollTimer);
+  $("run").disabled = true; show("progress", true); show("result", false);
+  $("status").textContent = "Running..."; $("log").textContent = "";
+  $("progress").scrollIntoView({ behavior: "smooth" });
+  let next = 0;
+  const tick = async () => {
+    try {
+      const r = await api(`/api/run/${id}?from=${next}`);
+      if (r.lines.length) { $("log").textContent += r.lines.join("\n") + "\n"; $("log").scrollTop = $("log").scrollHeight; }
+      next = r.next;
+      if (r.done) { finish(id, r); return; }
+    } catch (e) { $("status").textContent = "Lost contact: " + e.message; }
+    pollTimer = setTimeout(tick, 800);
+  };
+  tick();
+}
+
+function finish(id, r) {
+  $("run").disabled = false;
+  const failed = r.failed || 0;
+  const issues = r.issues || 0;
+  $("status").textContent = r.passed === undefined ? "Finished (no report: see the log)" : failed ? "Finished: something to fix"
+    : issues ? `Finished: passed, with ${issues} issue(s) worth a look` : "Finished: all passed";
+  if (r.passed !== undefined) {
+    show("result", true); $("passed").textContent = r.passed; $("failed").textContent = failed;
+    const box = $("failures"); box.innerHTML = "";
+    const items = (r.failures || []).map((f) => ({ ...f, cls: "failure" })).concat((r.lookAt || []).map((f) => ({ ...f, cls: "failure look" })));
+    items.forEach((f) => { const d = document.createElement("div"); d.className = f.cls;
+      const n = document.createElement("div"); n.textContent = f.name; const t = document.createElement("div"); t.className = "d"; t.textContent = f.detail;
+      d.append(n, t); box.appendChild(d); });
+    const links = $("links"); links.innerHTML = "";
+    const names = { "report.html": "Full report", "code-fixes.md": "Code fix list", "css-fixes.md": "CSS fix list", "report.json": "Report (JSON)" };
+    (r.files || []).forEach((f) => { const a = document.createElement("a"); a.textContent = names[f] || f; a.target = "_blank"; a.rel = "noopener";
+      a.href = `/api/run/${id}/${f}?t=${encodeURIComponent(token)}`; links.appendChild(a); });
+    $("logBox").open = false;
+  }
+  loadRuns();
+}
+
+async function loadRuns() {
+  try {
+    const list = await api("/api/runs"); const box = $("runs");
+    if (!list.length) return; box.innerHTML = "";
+    list.forEach((r) => { const d = document.createElement("div");
+      const t = document.createElement("div"); t.textContent = r.label || r.id;
+      const m = document.createElement("div"); m.className = "meta";
+      m.textContent = r.id.replace(/^(\d{4})(\d\d)(\d\d)-(\d\d)(\d\d).*/, "$1-$2-$3 $4:$5") + (r.passed !== undefined ? `  ·  ${r.passed} passed, ${r.failed} failed` : "");
+      d.append(t, m); d.onclick = () => follow(r.id); box.appendChild(d); });
+  } catch (e) {}
+}
+
+start();
+</script>
+</body>
+</html>
