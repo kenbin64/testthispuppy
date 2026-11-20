@@ -18,6 +18,10 @@ Most tests either mock the database, which tests the mock and not the system, or
 | Cleanup | The database matches its starting snapshot exactly, including the id sequences |
 | Log analysis | Stack traces are reduced to root causes, secrets hidden, and Claude can explain each failure (optional) |
 
+## No AI needed, not a single token
+
+Every check above is ordinary, deterministic software: the same code gets the same answer, every run, with no AI call and no token spent. AI is included, but anything can be done by hand or with AI's help, your choice: the optional failure explainer asks Claude (Anthropic's API, with your own key) to explain a stack trace. It is charged by the token, and only when you switch it on.
+
 ## Two database modes
 
 - **External:** connect to an existing test database with credentials. It must be on an approved list, and it is restored to its exact snapshot afterwards.
